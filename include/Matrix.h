@@ -21,8 +21,6 @@ namespace MatrixAlgorithm
         std::vector<std::vector<double>> value; 
         int _col;
         int _row;
-        bool symmetric;
-        bool _symmetric();
     };
 
     //basic operation
@@ -32,6 +30,8 @@ namespace MatrixAlgorithm
     bool operator==(Matrix& A, Matrix& B);
 
     //linear symmetric 
-    Matrix cholesky_(Matrix& A);
+    Matrix cholesky_zerlegung(Matrix& A); 
+    Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b); 
+    Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b); 
 
 }

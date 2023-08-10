@@ -1,6 +1,9 @@
 #pragma hdrstop
 #include <iostream>
 #include "../include/Matrix.h"
+#define TEST 1
+
+
 namespace MatrixAlgorithm
 {
     Matrix::Matrix(std::vector<std::vector<double>> value)
@@ -19,10 +22,10 @@ namespace MatrixAlgorithm
         this->value = value;
         _row = value.size();
         _col = last;
-        symmetric = _symmetric();
+
     }
 
-    Matrix::Matrix(const int col, const int row, const double number)
+    Matrix::Matrix(const int row, const int col,  const double number)
     {
         value.resize(row);
         for (int i = 0; i < row; i++)
@@ -34,7 +37,7 @@ namespace MatrixAlgorithm
         }
         this->_row = row;
         this->_col = col;
-        symmetric = _symmetric();
+
     }
 
     std::string Matrix::to_string()
@@ -74,11 +77,6 @@ namespace MatrixAlgorithm
         return true;
     }
 
-    bool Matrix::is_symmetric()
-    {
-        return symmetric;
-    }
-
     int Matrix::row()
     {
         return _row;
@@ -89,7 +87,7 @@ namespace MatrixAlgorithm
         return _col;
     }
 
-    bool Matrix::_symmetric()
+    bool Matrix::is_symmetric()
     {
         if (_col != _row)
             return false;
@@ -109,12 +107,10 @@ namespace MatrixAlgorithm
 
     Matrix transpose(Matrix& mat)
     {
-        int col = mat.col();
-        int row = mat.row();
-        Matrix x = Matrix(row, col, 0);
-        for (int i = 0; i < row; i++)
+        Matrix x = Matrix(mat.col(), mat.row(), 0);
+        for (int i = 0; i < mat.row(); i++)
         {
-            for (int j = 0; j < col; j++)
+            for (int j = 0; j < mat.col(); j++)
             {
                 x[j][i]=mat[i][j];
             }
@@ -162,9 +158,6 @@ namespace MatrixAlgorithm
                 if (A[i][j] == B[i][j])
                     continue;
                 else
-                    return false;if (A[i][j] == B[i][j])
-                    continue;
-                else
                     return false;
             }
         }
@@ -172,12 +165,12 @@ namespace MatrixAlgorithm
     }
 
     //linear symmetric 
-    Matrix cholesky_(Matrix& A)
+    Matrix cholesky_zerlegung(Matrix& A)
     {
-        Matrix L = Matrix(A.col(), A.row(), 0); 
+        Matrix L = Matrix(A.row(), A.col(), 0); 
         double sum = 0;
         int k = 0;
-        for (int i = 0; i < L.col(); i++)
+        for (int i = 0; i < L.row(); i++)
         {
             for (int j = 0; j <= i; j++)
             {
@@ -202,8 +195,42 @@ namespace MatrixAlgorithm
 
         return L;
     }
+
+    Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b)
+    {
+        Matrix x = Matrix(b.row(), 1, 0);
+        for (int i = 0; i < b.row(); i++)
+        {
+            double sum = 0;
+            for (int j = 0; j < i; j++)
+            {
+                sum += L[i][j]*x[j][0];
+            }
+            x[i][0] = (b[i][0] - sum)/L[i][i];
+        }
+        return x;
+    }
+    Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b)
+    {
+        int n = b.row();
+        Matrix x = Matrix(b.row(), 1, 0);
+        for (int i = n-1; i >= 0; i--)
+        {
+            double sum = 0;
+            for (int j = i+1; j < n; j++)
+            {
+                sum += R[i][j]*x[j][0];
+            }
+            x[i][0] = (b[i][0] - sum)/R[i][i];
+        }
+        return x;
+    }
 }
 
+
+
+#if TEST
+//tests
 
 using namespace MatrixAlgorithm;
 int main()
@@ -211,6 +238,12 @@ int main()
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix trans = transpose(vec1);
-    Matrix L = cholesky_(vec2);
-    std::cout << L.to_string() << std::endl;
+    //Matrix L = cholesky_zerlegung(vec2);
+    Matrix R = Matrix({{1,2,2},{0,-1,-5},{0,0,-9}});
+    Matrix b = Matrix(3,1,3);
+    b[1][0] = -13;
+    b[2][0] = -27;
+    Matrix result = rueckwaerts_einsetzen(R,b);
+    std::cout << result.to_string() << std::endl;
 }
+#endif
