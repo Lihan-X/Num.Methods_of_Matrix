@@ -227,7 +227,7 @@ namespace MatrixAlgorithm
         return x;
     }
 
-    bool gauss_elimination(Matrix& A, Matrix& B)
+    bool gauss_elimination(Matrix& A, Matrix& B, bool pivot_enabled)
     {
         //pivot suche
         int n = A.row();
@@ -238,33 +238,36 @@ namespace MatrixAlgorithm
         
         for (int s = 0; s < n-1; s++)
         {
-            //pivot suche
-            p = s;
-            piv = fabs(A[s][s]);
-            for (int i = s+1; i < n; i++)
+            if (pivot_enabled)
             {
-                if (fabs(A[i][s]) > piv)
+                //pivot suche
+                p = s;
+                piv = fabs(A[s][s]);
+                for (int i = s+1; i < n; i++)
                 {
-                    p = i;
-                    piv = fabs(A[i][s]);
+                    if (fabs(A[i][s]) > piv)
+                    {
+                        p = i;
+                        piv = fabs(A[i][s]);
+                    }
                 }
-            }
-            if (piv <= Matrix::esp)
-                return 0;
-            //Zeilenvertauschung
-            if (p != s)
-            {
-                for (int j = s; j < n; j++)
+                if (piv <= Matrix::esp)
+                    return 0;
+                //Zeilenvertauschung
+                if (p != s)
                 {
-                    l = A[s][j];
-                    A[s][j] = A[p][j];
-                    A[p][j] = l;
-                }
-                for (int k = 0; k < q; k++)
-                {
-                    l = B[s][k];
-                    B[s][k] = B[p][k];
-                    B[p][k] = l;
+                    for (int j = s; j < n; j++)
+                    {
+                        l = A[s][j];
+                        A[s][j] = A[p][j];
+                        A[p][j] = l;
+                    }
+                    for (int k = 0; k < q; k++)
+                    {
+                        l = B[s][k];
+                        B[s][k] = B[p][k];
+                        B[p][k] = l;
+                    }
                 }
             }
             //Elimination
@@ -305,8 +308,10 @@ int main()
     Matrix B = Matrix(3,1,1);
     B[1][0] = 2;
     
-    gauss_elimination(A, B);
+    gauss_elimination(A, B, 1);
+    
     std::cout << A.to_string() << std::endl;
     std::cout << B.to_string() << std::endl;
+    
 }
 #endif
