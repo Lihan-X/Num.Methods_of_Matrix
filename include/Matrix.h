@@ -9,6 +9,7 @@ namespace MatrixAlgorithm
     class Matrix
     {
     public:
+        Matrix() {};
         Matrix(std::vector<std::vector<double>> value);
         Matrix(const int column, const int row, const double number);
         std::string to_string();
@@ -32,7 +33,7 @@ namespace MatrixAlgorithm
     bool operator==(Matrix& A, Matrix& B);
 
     //linear symmetric 
-    Matrix cholesky_decomp(Matrix& A); 
+    bool cholesky_decomp(Matrix& A, Matrix& L); 
     Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b); 
     Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b); 
     void gauss_elimination(Matrix& A, Matrix& B);

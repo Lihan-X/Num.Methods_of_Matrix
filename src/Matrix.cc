@@ -165,9 +165,9 @@ namespace MatrixAlgorithm
     }
 
     //linear symmetric 
-    Matrix cholesky_decomp(Matrix& A)
+    bool cholesky_decomp(Matrix& A, Matrix& L)
     {
-        Matrix L = Matrix(A.row(), A.col(), 0); 
+        L = Matrix(A.row(), A.col(), 0); 
         double sum = 0;
         double s; 
         for (int i = 0; i < L.row(); i++)
@@ -183,7 +183,7 @@ namespace MatrixAlgorithm
                 if (j == i)
                 {
                     if (s < ESP)
-                        throw "A nicht positiv definit";
+                        return 0;
                     L[i][i] = sqrt(s);
                 }
                 else
@@ -193,7 +193,7 @@ namespace MatrixAlgorithm
             }
         }
 
-        return L;
+        return 1;
     }
 
     Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b)
@@ -243,18 +243,14 @@ namespace MatrixAlgorithm
             piv = fabs(A[s][s]);
             for (int i = s+1; i < n; i++)
             {
-                if (fabs(A[i][s]) <= piv)
-                    continue;
-                else
+                if (fabs(A[i][s]) > piv)
                 {
                     p = i;
                     piv = fabs(A[i][s]);
                 }
             }
             //Zeilenvertauschung
-            if (p == s)
-                continue;
-            else
+            if (p != s)
             {
                 for (int j = s; j < n; j++)
                 {
@@ -276,7 +272,7 @@ namespace MatrixAlgorithm
                 A[i][s] = 0;
                 for (int j = s+1; j < n; j++)
                     A[i][j] = A[i][j] - l*A[s][j];
-                for (int k = s+1; k < n; k++)
+                for (int k = 0; k < q; k++)
                     B[i][k] = B[i][k] - l*B[s][k];
             }
 
@@ -295,7 +291,9 @@ int main()
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix trans = transpose(vec1);
-    Matrix L = cholesky_decomp(vec2);
+    Matrix L; 
+    cholesky_decomp(vec2, L);
+    std::cout << "Cholesky: " << L.to_string() << std::endl; 
     Matrix A = Matrix({{1,1,1},{1,1.001,5},{1,2,2}});
     Matrix B = Matrix(3,1,1);
     B[1][0] = 2;
