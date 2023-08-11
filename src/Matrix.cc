@@ -105,7 +105,7 @@ namespace MatrixAlgorithm
         return value[n];
     }
 
-    Matrix transpose(Matrix& mat)
+    Matrix transpose( Matrix& mat)
     {
         Matrix x = Matrix(mat.col(), mat.row(), 0);
         for (int i = 0; i < mat.row(); i++)
@@ -165,7 +165,7 @@ namespace MatrixAlgorithm
     }
 
     //linear symmetric 
-    Matrix cholesky_zerlegung(Matrix& A)
+    Matrix cholesky_decomp(Matrix& A)
     {
         Matrix L = Matrix(A.row(), A.col(), 0); 
         double sum = 0;
@@ -210,6 +210,7 @@ namespace MatrixAlgorithm
         }
         return x;
     }
+
     Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b)
     {
         int n = b.row();
@@ -224,6 +225,15 @@ namespace MatrixAlgorithm
             x[i][0] = (b[i][0] - sum)/R[i][i];
         }
         return x;
+    }
+
+    Matrix gauss_elimination(Matrix& A, Matrix& b)
+    {
+        Matrix T = A;
+        for (int i = 0; i < b.row(); i++)
+        {
+            T[i].push_back(b[i][0]);
+        }
     }
 }
 

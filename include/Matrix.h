@@ -24,14 +24,15 @@ namespace MatrixAlgorithm
     };
 
     //basic operation
-    Matrix transpose(Matrix& value);
+    Matrix transpose( Matrix& value);
     Matrix operator+(Matrix& value1, Matrix& value2);
     Matrix operator*(const double alpha, Matrix& A);
     bool operator==(Matrix& A, Matrix& B);
 
     //linear symmetric 
-    Matrix cholesky_zerlegung(Matrix& A); 
+    Matrix cholesky_decomp(Matrix& A); 
     Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b); 
     Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b); 
+    Matrix gauss_elimination(Matrix& A, Matrix& b);
 
 }
