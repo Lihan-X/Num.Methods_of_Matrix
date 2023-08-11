@@ -4,7 +4,6 @@
 #include <math.h>
 namespace MatrixAlgorithm
 {
-    #define ESP 1e-7
     //initialise matrix
     class Matrix
     {
@@ -18,6 +17,7 @@ namespace MatrixAlgorithm
         int col();
         std::vector<double>& operator[](int n);
         bool is_symmetric(); 
+        static constexpr double esp =1e-7;
 
 
     private:

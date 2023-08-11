@@ -182,7 +182,7 @@ namespace MatrixAlgorithm
                 s = A[i][j] - sum;
                 if (j == i)
                 {
-                    if (s < ESP)
+                    if (s < Matrix::esp)
                         return 0;
                     L[i][i] = sqrt(s);
                 }
@@ -249,7 +249,7 @@ namespace MatrixAlgorithm
                     piv = fabs(A[i][s]);
                 }
             }
-            if (piv <= ESP)
+            if (piv <= Matrix::esp)
                 return 0;
             //Zeilenvertauschung
             if (p != s)
@@ -279,10 +279,11 @@ namespace MatrixAlgorithm
             }
 
         }
-        if (fabs(A[n][n]) <= ESP)
+
+        if (fabs(A[n-1][n-1]) <= Matrix::esp)
             return false;
-        else
-            return true;
+
+        return true;
     }
 }
 
@@ -303,8 +304,6 @@ int main()
     Matrix A = Matrix({{1,1,1},{1,1.001,5},{1,2,2}});
     Matrix B = Matrix(3,1,1);
     B[1][0] = 2;
-    std::cout << A.to_string() << std::endl;
-    std::cout << B.to_string() << std::endl;
     
     gauss_elimination(A, B);
     std::cout << A.to_string() << std::endl;
