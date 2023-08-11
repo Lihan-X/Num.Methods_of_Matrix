@@ -169,26 +169,26 @@ namespace MatrixAlgorithm
     {
         Matrix L = Matrix(A.row(), A.col(), 0); 
         double sum = 0;
-        int k = 0;
+        double s; 
         for (int i = 0; i < L.row(); i++)
         {
             for (int j = 0; j <= i; j++)
             {
+                sum = 0;
+                for (int k = 0; k < j; k++)
+                {
+                    sum += L[i][k]*L[j][k];
+                }
+                s = A[i][j] - sum;
                 if (j == i)
                 {
-                    for (k = 0; k < i; k++)
-                        sum += L[i][k]*L[i][k];
-                    L[i][i] = sqrt(A[i][i] - sum);
-                    sum = 0;
-                    k = 0;
+                    if (s < ESP)
+                        throw "A nicht positiv definit";
+                    L[i][i] = sqrt(s);
                 }
                 else
                 {
-                    for (k = 0; k < j; k++)
-                        sum += L[i][k]*L[j][k];
-                    L[i][j] = (A[i][j]- sum)/L[j][j];
-                    sum = 0;
-                    k = 0;
+                    L[i][j] = s/L[j][j];
                 }
             }
         }
@@ -227,12 +227,59 @@ namespace MatrixAlgorithm
         return x;
     }
 
-    Matrix gauss_elimination(Matrix& A, Matrix& b)
+    void gauss_elimination(Matrix& A, Matrix& B)
     {
-        Matrix T = A;
-        for (int i = 0; i < b.row(); i++)
+        //pivot suche
+        int n = A.row();
+        int q = B.col();
+        double p; //pivotzeilen
+        double piv;
+        double l;
+        
+        for (int s = 0; s < n-1; s++)
         {
-            T[i].push_back(b[i][0]);
+            //pivot suche
+            p = s;
+            piv = fabs(A[s][s]);
+            for (int i = s+1; i < n; i++)
+            {
+                if (fabs(A[i][s]) <= piv)
+                    continue;
+                else
+                {
+                    p = i;
+                    piv = fabs(A[i][s]);
+                }
+            }
+            //Zeilenvertauschung
+            if (p == s)
+                continue;
+            else
+            {
+                for (int j = s; j < n; j++)
+                {
+                    l = A[s][j];
+                    A[s][j] = A[p][j];
+                    A[p][j] = l;
+                }
+                for (int k = 0; k < q; k++)
+                {
+                    l = B[s][k];
+                    B[s][k] = B[p][k];
+                    B[p][k] = l;
+                }
+            }
+            //Elimination
+            for (int i = s+1; i < n; i++)
+            {
+                l = A[i][s]/A[s][s];
+                A[i][s] = 0;
+                for (int j = s+1; j < n; j++)
+                    A[i][j] = A[i][j] - l*A[s][j];
+                for (int k = s+1; k < n; k++)
+                    B[i][k] = B[i][k] - l*B[s][k];
+            }
+
         }
     }
 }
@@ -248,12 +295,15 @@ int main()
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix trans = transpose(vec1);
-    //Matrix L = cholesky_zerlegung(vec2);
-    Matrix R = Matrix({{1,2,2},{0,-1,-5},{0,0,-9}});
-    Matrix b = Matrix(3,1,3);
-    b[1][0] = -13;
-    b[2][0] = -27;
-    Matrix result = rueckwaerts_einsetzen(R,b);
-    std::cout << result.to_string() << std::endl;
+    Matrix L = cholesky_decomp(vec2);
+    Matrix A = Matrix({{1,1,1},{1,1.001,5},{1,2,2}});
+    Matrix B = Matrix(3,1,1);
+    B[1][0] = 2;
+    std::cout << A.to_string() << std::endl;
+    std::cout << B.to_string() << std::endl;
+    
+    gauss_elimination(A, B);
+    std::cout << A.to_string() << std::endl;
+    std::cout << B.to_string() << std::endl;
 }
 #endif

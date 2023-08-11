@@ -4,6 +4,7 @@
 #include <math.h>
 namespace MatrixAlgorithm
 {
+    #define ESP 1e-7
     //initialise matrix
     class Matrix
     {
@@ -16,6 +17,7 @@ namespace MatrixAlgorithm
         int col();
         std::vector<double>& operator[](int n);
         bool is_symmetric(); 
+
 
     private:
         std::vector<std::vector<double>> value; 
@@ -33,6 +35,6 @@ namespace MatrixAlgorithm
     Matrix cholesky_decomp(Matrix& A); 
     Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b); 
     Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b); 
-    Matrix gauss_elimination(Matrix& A, Matrix& b);
+    void gauss_elimination(Matrix& A, Matrix& B);
 
 }
