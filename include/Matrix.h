@@ -36,6 +36,6 @@ namespace MatrixAlgorithm
     bool cholesky_decomp(Matrix& A, Matrix& L); 
     Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b); 
     Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b); 
-    void gauss_elimination(Matrix& A, Matrix& B);
+    bool gauss_elimination(Matrix& A, Matrix& B);
 
 }

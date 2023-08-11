@@ -227,7 +227,7 @@ namespace MatrixAlgorithm
         return x;
     }
 
-    void gauss_elimination(Matrix& A, Matrix& B)
+    bool gauss_elimination(Matrix& A, Matrix& B)
     {
         //pivot suche
         int n = A.row();
@@ -249,6 +249,8 @@ namespace MatrixAlgorithm
                     piv = fabs(A[i][s]);
                 }
             }
+            if (piv <= ESP)
+                return 0;
             //Zeilenvertauschung
             if (p != s)
             {
@@ -277,6 +279,10 @@ namespace MatrixAlgorithm
             }
 
         }
+        if (fabs(A[n][n]) <= ESP)
+            return false;
+        else
+            return true;
     }
 }
 
