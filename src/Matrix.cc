@@ -164,6 +164,7 @@ namespace MatrixAlgorithm
         return true;
     }
 
+
     //linear symmetric 
     bool cholesky_decomp(Matrix& A, Matrix& L)
     {
@@ -261,7 +262,7 @@ namespace MatrixAlgorithm
                         l = A[s][j];
                         A[s][j] = A[p][j];
                         A[p][j] = l;
-                    }
+                    Matrix dot(Matrix& A, Matrix& B); }
                     for (int k = 0; k < q; k++)
                     {
                         l = B[s][k];
@@ -363,15 +364,9 @@ int main()
     Matrix trans = transpose(vec1);
     Matrix L; 
     cholesky_decomp(vec2, L);
-    std::cout << "Cholesky: " << L.to_string() << std::endl; 
-    Matrix A = Matrix({{1, 2, 2},{3,5,1},{2,6,5}});
-    Matrix B = Matrix(3,1,1);
-    B[1][0] = 2;
-    gauss_elimination_with_LR_decomp(A, B);
-
-    
-    std::cout << A.to_string() << std::endl;
-    std::cout << B.to_string() << std::endl;
+    //std::cout << "Cholesky: " << L.to_string() << std::endl; 
+    Matrix A = Matrix({{1, 0, 0},{3,1,0},{2,-2,1}});
+    Matrix B = Matrix({{1, 2, 2},{0, -1, -5},{0,0,9}});
 
     
 }

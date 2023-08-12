@@ -31,6 +31,7 @@ namespace MatrixAlgorithm
     Matrix operator+(Matrix& value1, Matrix& value2);
     Matrix operator*(const double alpha, Matrix& A);
     bool operator==(Matrix& A, Matrix& B);
+    Matrix dot(Matrix& A, Matrix& B); 
 
     //linear symmetric 
     bool cholesky_decomp(Matrix& A, Matrix& L); 
