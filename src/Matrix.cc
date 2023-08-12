@@ -288,6 +288,66 @@ namespace MatrixAlgorithm
 
         return true;
     }
+
+    bool gauss_elimination_with_LR_decomp(Matrix& A, Matrix& z)
+    {
+        int n = A.row();
+        z = Matrix(n,1,0);
+        for (int i = 0; i < n; i++)
+            z[i][0] = i;
+        double p; //pivotzeilen
+        double piv;
+        double l;
+        
+        for (int s = 0; s < n-1; s++)
+        {
+            //pivot suche
+            p = s;
+            piv = fabs(A[s][s]);
+            for (int i = s+1; i < n; i++)
+            {
+                if (fabs(A[i][s]) > piv)
+                {
+                    p = i;
+                    piv = fabs(A[i][s]);
+                }
+            }
+            if (piv <= Matrix::esp)
+                return 0;
+            //Zeilenvertauschung
+            if (p != s)
+            {
+                int j;
+                for (j = 0; j < n; j++)
+                {
+                    l = A[s][j];
+                    A[s][j] = A[p][j];
+                    A[p][j] = l;
+                }
+                    j = z[s][0];
+                    z[s][0] = z[p][0]; 
+                    z[p][0] = j;
+                
+                
+                
+            }
+            //Elimination
+            for (int i = s+1; i < n; i++)
+            {
+                l = A[i][s]/A[s][s];
+                A[i][s] = l;
+                for (int j = s+1; j < n; j++)
+                    A[i][j] = A[i][j] - l*A[s][j];
+            }
+
+        }
+
+        if (fabs(A[n-1][n-1]) <= Matrix::esp)
+            return false;
+
+        return true;
+
+    }
 }
 
 
@@ -304,14 +364,15 @@ int main()
     Matrix L; 
     cholesky_decomp(vec2, L);
     std::cout << "Cholesky: " << L.to_string() << std::endl; 
-    Matrix A = Matrix({{1,1,1},{1,1.001,5},{1,2,2}});
+    Matrix A = Matrix({{1, 2, 2},{3,5,1},{2,6,5}});
     Matrix B = Matrix(3,1,1);
     B[1][0] = 2;
-    
-    gauss_elimination(A, B, 1);
+    gauss_elimination_with_LR_decomp(A, B);
+
     
     std::cout << A.to_string() << std::endl;
     std::cout << B.to_string() << std::endl;
+
     
 }
 #endif
