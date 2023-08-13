@@ -199,15 +199,20 @@ namespace MatrixAlgorithm
 
     Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b)
     {
-        Matrix x = Matrix(b.row(), 1, 0);
-        for (int i = 0; i < b.row(); i++)
+        int q = b.col();
+        int n = b.row();
+        Matrix x = Matrix(n, q, 0);
+        for (int k =0; k < q; k++)
         {
-            double sum = 0;
-            for (int j = 0; j < i; j++)
+            for (int i = 0; i < n; i++)
             {
-                sum += L[i][j]*x[j][0];
+                double sum = 0;
+                for (int j = 0; j <= i-1; j++)
+                {
+                    sum += L[i][j]*x[j][k];
+                }
+                x[i][k] = (b[i][k] - sum)/L[i][i];
             }
-            x[i][0] = (b[i][0] - sum)/L[i][i];
         }
         return x;
     }
@@ -215,15 +220,19 @@ namespace MatrixAlgorithm
     Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b)
     {
         int n = b.row();
-        Matrix x = Matrix(b.row(), 1, 0);
-        for (int i = n-1; i >= 0; i--)
+        int q = b.col();
+        Matrix x = Matrix(b.row(), b.col(), 0);
+        for (int k =0; k < q; k++)
         {
-            double sum = 0;
-            for (int j = i+1; j < n; j++)
+            for (int i = n-1; i >= 0; i--)
             {
-                sum += R[i][j]*x[j][0];
+                double sum = 0;
+                for (int j = i+1; j < n; j++)
+                {
+                    sum += R[i][j]*x[j][k];
+                }
+                x[i][k] = (b[i][k] - sum)/R[i][i];
             }
-            x[i][0] = (b[i][0] - sum)/R[i][i];
         }
         return x;
     }
@@ -362,12 +371,20 @@ int main()
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix trans = transpose(vec1);
-    Matrix L; 
-    cholesky_decomp(vec2, L);
+    Matrix y; 
+    Matrix x;
     //std::cout << "Cholesky: " << L.to_string() << std::endl; 
-    Matrix A = Matrix({{1, 0, 0},{3,1,0},{2,-2,1}});
-    Matrix B = Matrix({{1, 2, 2},{0, -1, -5},{0,0,9}});
-
+    Matrix L = Matrix({{1, 0, 0},{2.0/3,1,0},{1.0/3,1.0/8,1}});
+    Matrix R = Matrix({{3, 5, 1},{0, 8.0/3, 13.0/3},{0,0,9.0/8}});
+    Matrix b = Matrix(3,1,0);
+    b[0][0] = -4;
+    b[1][0] = 5;
+    b[2][0] = 3;
+    y = vorwaerts_einsetzen(L, b);
+    std::cout << y.to_string() << std::endl;
+    x = rueckwaerts_einsetzen(R,y);
+    std::cout << x.to_string() << std::endl;
+    
     
 }
 #endif
