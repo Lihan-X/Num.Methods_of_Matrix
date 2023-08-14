@@ -370,9 +370,9 @@ namespace MatrixAlgorithm
             if (mu < Matrix::esp*Matrix::esp)
                 return false;
             if (A[s][s] < 0)
-                continue;
-            else
                 mu = sqrt(mu);
+            else
+                mu = -sqrt(mu);
             D[s][s] = mu;
             A[s][s] = A[s][s] - mu;
             alpha = -mu*A[s][s];
@@ -398,6 +398,25 @@ namespace MatrixAlgorithm
             }
 
         }
+    }
+
+    Matrix inverse_L(Matrix& L)
+    {
+        Matrix result = L;
+        for (int i = 0; i < L.row(); i++)
+        {
+            result[i][i] = 1 / L[i][i];
+            for (int j = 0; i <= i-1; j++)
+            {
+                double sum = 0;
+                for (int k = j; k <= i-1; k++)
+                {
+                    sum += L[i][k]*result[k][j];
+                }
+                result[i][j] = -sum/L[i][i]; 
+            }
+        }
+        return result;
     }
 }
 
