@@ -336,10 +336,7 @@ namespace MatrixAlgorithm
                 }
                     j = z[s][0];
                     z[s][0] = z[p][0]; 
-                    z[p][0] = j;
-                
-                
-                
+                    z[p][0] = j;    
             }
             //Elimination
             for (int i = s+1; i < n; i++)
@@ -358,13 +355,56 @@ namespace MatrixAlgorithm
         return true;
 
     }
+
+    bool QR_decomp(Matrix& A, Matrix& B)
+    {
+        int n = A.row();
+        int q = B.col();
+        double alpha, beta;
+        Matrix D = Matrix(n, n, 0);
+        for (int s = 0; s < n; s++)
+        {
+            double mu = 0;
+            for (int i = s; i < n; i++)
+                mu += A[i][s]*A[i][s];
+            if (mu < Matrix::esp*Matrix::esp)
+                return false;
+            if (A[s][s] < 0)
+                continue;
+            else
+                mu = sqrt(mu);
+            D[s][s] = mu;
+            A[s][s] = A[s][s] - mu;
+            alpha = -mu*A[s][s];
+
+            for (int j = s+1; j < n; j++)
+            {
+                double sum = 0;
+                for (int i = s; i < n; i++)
+                    sum += A[i][s]*A[i][j];
+                beta = sum / alpha;
+                for(int i = 0; i < n; i++)
+                    A[i][j] = A[i][j]-beta*A[i][s];
+            }
+
+            for (int k = 0; k < q; k++)
+            {
+                double sum = 0;
+                for (int i = s; i < n; i++)
+                    sum += A[i][s]*B[i][k];
+                beta = sum / alpha;
+                for (int i = s; i < n; i++)
+                    B[i][k] = B[i][k]-beta*A[i][s];
+            }
+
+        }
+    }
 }
 
 
 
 #if TEST
 //tests
-
 using namespace MatrixAlgorithm;
 int main()
 {

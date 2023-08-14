@@ -39,5 +39,6 @@ namespace MatrixAlgorithm
     Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b); 
     bool gauss_elimination(Matrix& A, Matrix& B, bool pivot_enabled);
     bool gauss_elimination_with_LR_decomp(Matrix& A, Matrix& z); 
+    bool QR_decomp(Matrix& A, Matrix& B); 
 
 }
