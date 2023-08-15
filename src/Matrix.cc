@@ -271,7 +271,7 @@ namespace MatrixAlgorithm
                         l = A[s][j];
                         A[s][j] = A[p][j];
                         A[p][j] = l;
-                    Matrix dot(Matrix& A, Matrix& B); }
+                    }
                     for (int k = 0; k < q; k++)
                     {
                         l = B[s][k];
@@ -398,6 +398,11 @@ namespace MatrixAlgorithm
             }
 
         }
+        if (fabs(A[n-1][n-1]) <= Matrix::esp)
+            return false;
+
+        return true;
+
     }
 
     Matrix inverse_L(Matrix& L)
@@ -418,6 +423,56 @@ namespace MatrixAlgorithm
         }
         return result;
     }
+
+    double det(Matrix A)
+    {
+        int n = A.col(); 
+        double p; //pivotzeilen
+        double piv;
+        double l;
+        
+        for (int s = 0; s < n-1; s++)
+        {
+            //pivot suche
+            p = s;
+            piv = fabs(A[s][s]);
+            for (int i = s+1; i < n; i++)
+            {
+                if (fabs(A[i][s]) > piv)
+                {
+                    p = i;
+                    piv = fabs(A[i][s]);
+                }
+            }
+            if (piv <= Matrix::esp)
+                return 0;
+            //Zeilenvertauschung
+            if (p != s)
+            {
+                for (int j = s; j < n; j++)
+                {
+                    l = A[s][j];
+                    A[s][j] = A[p][j];
+                    A[p][j] = l;
+                }
+            }
+            
+            //Elimination
+            for (int i = s+1; i < n; i++)
+            {
+                l = A[i][s]/A[s][s];
+                A[i][s] = 0;
+                for (int j = s+1; j < n; j++)
+                    A[i][j] = A[i][j] - l*A[s][j];
+            }
+
+        }
+
+        double d = 1;
+        for (int i = 0; i < n; i++)
+            d *= A[i][i]; 
+        return d;
+    }
 }
 
 
@@ -433,17 +488,9 @@ int main()
     Matrix y; 
     Matrix x;
     //std::cout << "Cholesky: " << L.to_string() << std::endl; 
-    Matrix L = Matrix({{1, 0, 0},{2.0/3,1,0},{1.0/3,1.0/8,1}});
-    Matrix R = Matrix({{3, 5, 1},{0, 8.0/3, 13.0/3},{0,0,9.0/8}});
-    Matrix b = Matrix(3,1,0);
-    b[0][0] = -4;
-    b[1][0] = 5;
-    b[2][0] = 3;
-    y = vorwaerts_einsetzen(L, b);
-    std::cout << y.to_string() << std::endl;
-    x = rueckwaerts_einsetzen(R,y);
+    Matrix A = Matrix({{1,2,0,1},{1,0,3,1},{1,0,3,2},{1,2,0,2}});
     std::cout << x.to_string() << std::endl;
-    
+    std::cout << det(A) << std::endl;
     
 }
 #endif
