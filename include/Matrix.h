@@ -10,14 +10,34 @@ namespace MatrixAlgorithm
     public:
         Matrix() {};
         Matrix(std::vector<std::vector<double>> value);
+        Matrix(Matrix& matrix); //copy
         Matrix(const int column, const int row, const double number);
-        std::string to_string();
-        bool is_matrix();
-        int row();
-        int col();
+        std::string toString();
+        bool isMatrix();
+        const int getRow();
+        const int getCol();
         std::vector<double>& operator[](int n);
-        bool is_symmetric(); 
-        static constexpr double esp =1e-7;
+        bool isSymmetric(); 
+        const std::vector<std::vector<double>> getValue(); 
+        static constexpr double esp =1e-10;
+
+        //basic operation
+        double& operator()(const unsigned int row, const unsigned int col);
+        Matrix transpose();
+        Matrix operator+(Matrix B);
+        Matrix operator*(const double alpha);
+        bool operator==(Matrix& B);
+        Matrix dot(Matrix& A, Matrix& B); 
+
+        //linear symmetric 
+        bool choleskyDecomp(Matrix& A, Matrix& L); 
+        Matrix vorwaertsEinsetzen(Matrix& L, Matrix& b); 
+        Matrix rueckwaertsEinsetzen(Matrix& R, Matrix& b); 
+        bool gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled);
+        bool gaussElimination_with_LR_decomp(Matrix& A, Matrix& z); 
+        bool QR_decomp(Matrix& A, Matrix& B); 
+        Matrix inverseL(Matrix& L); 
+        const double det();
 
 
     private:
@@ -26,21 +46,6 @@ namespace MatrixAlgorithm
         int _row;
     };
 
-    //basic operation
-    Matrix transpose(Matrix& value);
-    Matrix operator+(Matrix& value1, Matrix& value2);
-    Matrix operator*(const double alpha, Matrix& A);
-    bool operator==(Matrix& A, Matrix& B);
-    Matrix dot(Matrix& A, Matrix& B); 
 
-    //linear symmetric 
-    bool cholesky_decomp(Matrix& A, Matrix& L); 
-    Matrix vorwaerts_einsetzen(Matrix& L, Matrix& b); 
-    Matrix rueckwaerts_einsetzen(Matrix& R, Matrix& b); 
-    bool gauss_elimination(Matrix& A, Matrix& B, bool pivot_enabled);
-    bool gauss_elimination_with_LR_decomp(Matrix& A, Matrix& z); 
-    bool QR_decomp(Matrix& A, Matrix& B); 
-    Matrix inverse_L(Matrix& L); 
-    double det(Matrix A);
 
 }
