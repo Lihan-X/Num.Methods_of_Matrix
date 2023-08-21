@@ -180,6 +180,30 @@ namespace MatrixAlgorithm
         return true;
     }
 
+    Matrix Matrix::dot(Matrix& A, Matrix& B)
+    {
+        int m = A.getRow();
+        int n = B.getCol();
+        if ((A.getCol()) != (B.getRow()))
+            throw "not possible! "; 
+        Matrix product = Matrix(m, n, 0);
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j<n; j++)
+            {
+                double sum = 0;
+                for (int a = 0; a < A.getCol(); a++)
+                {
+                    sum += A[i][a]*B[a][j];
+                    
+                }
+                product[i][j] = sum; 
+            }
+        }
+        return product;
+
+    }
+
 
     //linear symmetric 
     bool Matrix::choleskyDecomp(Matrix& A, Matrix& L)
@@ -501,8 +525,8 @@ int main()
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix trans = vec1.transpose();
-    Matrix y = vec1;
-    y(0,0) = y(0,0)+1.0;
+    Matrix y = y.dot(vec1, vec2);
+
     std::cout << y.toString() << std::endl; 
     
 
