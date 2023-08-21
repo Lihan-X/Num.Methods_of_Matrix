@@ -180,7 +180,7 @@ namespace MatrixAlgorithm
         return true;
     }
 
-    Matrix Matrix::dot(Matrix& A, Matrix& B)
+    const Matrix Matrix::dot(Matrix& A, Matrix& B)
     {
         int m = A.getRow();
         int n = B.getCol();
@@ -193,10 +193,8 @@ namespace MatrixAlgorithm
             {
                 double sum = 0;
                 for (int a = 0; a < A.getCol(); a++)
-                {
                     sum += A[i][a]*B[a][j];
-                    
-                }
+                
                 product[i][j] = sum; 
             }
         }
@@ -526,8 +524,8 @@ int main()
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix trans = vec1.transpose();
     Matrix y = y.dot(vec1, vec2);
-
-    std::cout << y.toString() << std::endl; 
+    double s = vec2.det()
+    std::cout << s << std::endl; 
     
 
 
