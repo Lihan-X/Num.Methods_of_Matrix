@@ -110,6 +110,24 @@ namespace MatrixAlgorithm
         return value; 
     }
 
+    double Matrix::getMaximumNorm()
+    {
+        double max = 0;
+        for (auto it = value.begin(); it != value.end(); it++)
+        {
+           for(auto it1 = it->begin(); it1 != it->end(); it1++)
+           {
+                if (fabs(*it1) > max)
+                {
+                    max = *it1; 
+                }
+
+           }
+        }
+
+        return max; 
+    }
+
     //basic operation
 
     std::vector<double>& Matrix::operator[](int n)
@@ -180,7 +198,7 @@ namespace MatrixAlgorithm
         return true;
     }
 
-    const Matrix Matrix::dot(Matrix& A, Matrix& B)
+    Matrix Matrix::dot(Matrix& A, Matrix& B)
     {
         int m = A.getRow();
         int n = B.getCol();
@@ -511,6 +529,24 @@ namespace MatrixAlgorithm
             d *= value[i][i]; 
         return d;
     }
+
+    void Matrix::simpleVectorIteration(Matrix& A, Matrix& eigen_vector, double& lambda)
+    {
+        int n = A.getCol(); 
+        Matrix z = Matrix(n, 1, 0);
+        Matrix y;  
+        z[0][0] = 1; 
+        double lambda_last = lambda + 1;
+        while (fabs(lambda-lambda_last) >= 1e-10)
+        {
+            lambda_last = lambda;
+            y = dot(A, z); 
+            lambda = y.getMaximumNorm();
+            z = y*(1/lambda); 
+        }
+        eigen_vector = z;
+
+    }
 }
 
 
@@ -522,10 +558,13 @@ int main()
 {
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
+    Matrix A = Matrix({{4,-1,1},{9,-8,9},{11,-11,12}});
     Matrix trans = vec1.transpose();
-    Matrix y = y.dot(vec1, vec2);
-    double s = vec2.det();
-    std::cout << s << std::endl; 
+    Matrix y;
+    double lambda = 0;
+    vec1.simpleVectorIteration(A, y, lambda);
+    std::cout << y.toString() << std::endl;
+    std::cout << lambda << std::endl;  
     
 
 

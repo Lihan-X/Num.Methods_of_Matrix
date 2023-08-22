@@ -20,6 +20,8 @@ namespace MatrixAlgorithm
         bool isSymmetric(); 
         const std::vector<std::vector<double>> getValue(); 
         static constexpr double esp =1e-10;
+        double getMaximumNorm(); 
+
 
         //basic operation
         double& operator()(const unsigned int row, const unsigned int col);
@@ -27,7 +29,8 @@ namespace MatrixAlgorithm
         Matrix operator+(Matrix B);
         Matrix operator*(const double alpha);
         bool operator==(Matrix& B);
-        const Matrix dot(Matrix& A, Matrix& B); 
+        Matrix dot(Matrix& A, Matrix& B); 
+        
 
         //linear symmetric 
         bool choleskyDecomp(Matrix& A, Matrix& L); 
@@ -38,6 +41,7 @@ namespace MatrixAlgorithm
         bool QR_decomp(Matrix& A, Matrix& B); 
         Matrix inverseL(Matrix& L); 
         const double det();
+        void simpleVectorIteration(Matrix& A, Matrix& eigen_vector, double& eigen_value); 
 
 
     private:
