@@ -524,7 +524,7 @@ int main()
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix trans = vec1.transpose();
     Matrix y = y.dot(vec1, vec2);
-    double s = vec2.det()
+    double s = vec2.det();
     std::cout << s << std::endl; 
     
 
