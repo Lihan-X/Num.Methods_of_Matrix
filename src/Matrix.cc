@@ -47,6 +47,14 @@ namespace MatrixAlgorithm
 
     }
 
+    Matrix Matrix::identity(const int n)
+    {
+        Matrix I = Matrix(n,n,0);
+        for (int i = 0; i < n; i++)
+            I[i][i] = 1;
+        return I;
+    }
+
     std::string Matrix::toString()
     {
         std::string vector_text = "";
@@ -162,6 +170,23 @@ namespace MatrixAlgorithm
                 for (int j = 0; j < getCol(); j++)
                 {
                     B[i][j]=B[i][j]+value[i][j];
+                }
+            }
+            return B;
+        }
+        else
+            throw "A,B has different size";
+    }
+
+    Matrix Matrix::operator-(Matrix B)
+    {
+        if ((getCol()==B.getCol()) && (getRow() == B.getRow()))
+        {
+            for (int i = 0; i < getRow(); i++)
+            {
+                for (int j = 0; j < getCol(); j++)
+                {
+                    B[i][j]=value[i][j]-B[i][j];
                 }
             }
             return B;
@@ -412,53 +437,30 @@ namespace MatrixAlgorithm
 
     }
 
-    bool Matrix::QR_decomp(Matrix& A, Matrix& B)
+
+    bool Matrix::qr(Matrix A, std::vector<Matrix>& qr)
     {
         int n = A.getRow();
-        int q = B.getCol();
-        double alpha, beta;
-        Matrix D = Matrix(n, n, 0);
+        qr.reserve(2); 
+        qr[0] = identity(n); 
+        Matrix v, u, e;
+        double mu;
         for (int s = 0; s < n; s++)
         {
-            double mu = 0;
+            double sum = 0;
             for (int i = s; i < n; i++)
-                mu += A[i][s]*A[i][s];
-            if (mu < Matrix::esp*Matrix::esp)
-                return false;
-            if (A[s][s] < 0)
-                mu = sqrt(mu);
+                sum += A(s, i)*A(s, i);
+            if (sum < 0)
+                mu = -sqrt(fabs(sum));
             else
-                mu = -sqrt(mu);
-            D[s][s] = mu;
-            A[s][s] = A[s][s] - mu;
-            alpha = -mu*A[s][s];
-
-            for (int j = s+1; j < n; j++)
-            {
-                double sum = 0;
-                for (int i = s; i < n; i++)
-                    sum += A[i][s]*A[i][j];
-                beta = sum / alpha;
-                for(int i = 0; i < n; i++)
-                    A[i][j] = A[i][j]-beta*A[i][s];
-            }
-
-            for (int k = 0; k < q; k++)
-            {
-                double sum = 0;
-                for (int i = s; i < n; i++)
-                    sum += A[i][s]*B[i][k];
-                beta = sum / alpha;
-                for (int i = s; i < n; i++)
-                    B[i][k] = B[i][k]-beta*A[i][s];
-            }
-
+                mu = sqrt(sum);
+            v = Matrix(n-s, 1, 0); 
+            e = v; 
+            e(0,0) = mu; 
+            for (int i = n-s; i < n; i++)
+                v(i, 0) = A(i, s) - e(i, s);
         }
-        if (fabs(A[n-1][n-1]) <= Matrix::esp)
-            return false;
-
-        return true;
-
+        
     }
 
     Matrix Matrix::inverseL(Matrix& L)
@@ -530,23 +532,7 @@ namespace MatrixAlgorithm
         return d;
     }
 
-    void Matrix::simpleVectorIteration(Matrix& A, Matrix& eigen_vector, double& lambda)
-    {
-        int n = A.getCol(); 
-        Matrix z = Matrix(n, 1, 0);
-        Matrix y;  
-        z[0][0] = 1; 
-        double lambda_last = lambda + 1;
-        while (fabs(lambda-lambda_last) >= 1e-10)
-        {
-            lambda_last = lambda;
-            y = dot(A, z); 
-            lambda = y.getMaximumNorm();
-            z = y*(1/lambda); 
-        }
-        eigen_vector = z;
-
-    }
+    
 }
 
 
@@ -560,11 +546,8 @@ int main()
     Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
     Matrix A = Matrix({{4,-1,1},{9,-8,9},{11,-11,12}});
     Matrix trans = vec1.transpose();
-    Matrix y;
-    double lambda = 0;
-    vec1.simpleVectorIteration(A, y, lambda);
-    std::cout << y.toString() << std::endl;
-    std::cout << lambda << std::endl;  
+    Matrix y,z;
+    std::vector<double> lambda;
     
 
 

@@ -12,6 +12,7 @@ namespace MatrixAlgorithm
         Matrix(std::vector<std::vector<double>> value);
         Matrix(Matrix& matrix); //copy
         Matrix(const int column, const int row, const double number);
+        Matrix identity(const int n);
         std::string toString();
         bool isMatrix();
         const int getRow();
@@ -27,6 +28,7 @@ namespace MatrixAlgorithm
         double& operator()(const unsigned int row, const unsigned int col);
         Matrix transpose();
         Matrix operator+(Matrix B);
+        Matrix operator-(Matrix B); 
         Matrix operator*(const double alpha);
         bool operator==(Matrix& B);
         Matrix dot(Matrix& A, Matrix& B); 
@@ -38,10 +40,10 @@ namespace MatrixAlgorithm
         Matrix rueckwaertsEinsetzen(Matrix& R, Matrix& b); 
         bool gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled);
         bool gaussElimination_with_LR_decomp(Matrix& A, Matrix& z); 
-        bool QR_decomp(Matrix& A, Matrix& B); 
+        bool qr(Matrix A, std::vector<Matrix>& qr); 
         Matrix inverseL(Matrix& L); 
         const double det();
-        void simpleVectorIteration(Matrix& A, Matrix& eigen_vector, double& eigen_value); 
+        
 
 
     private:
