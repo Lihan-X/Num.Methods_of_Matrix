@@ -22,6 +22,7 @@ namespace MatrixAlgorithm
         const std::vector<std::vector<double>> getValue(); 
         static constexpr double esp =1e-10;
         double getMaximumNorm(); 
+        double getEuklidNorm(); 
 
 
         //basic operation

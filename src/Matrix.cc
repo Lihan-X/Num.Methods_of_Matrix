@@ -136,6 +136,19 @@ namespace MatrixAlgorithm
         return max; 
     }
 
+    double Matrix::getEuklidNorm()
+    {
+        double norm; 
+        if (_col == 0)
+        {
+            for (int i = 0; i < _row; i++)
+                norm += value[i][0];
+            norm = sqrt(norm);
+            return norm;
+        }
+   
+    }
+
     //basic operation
 
     std::vector<double>& Matrix::operator[](int n)
