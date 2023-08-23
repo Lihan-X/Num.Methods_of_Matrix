@@ -136,6 +136,7 @@ namespace MatrixAlgorithm
         return max; 
     }
 
+<<<<<<< HEAD
     double Matrix::getEuklischNorm()
     {
         double norm = 0; 
@@ -147,6 +148,19 @@ namespace MatrixAlgorithm
             }
         }
         return sqrt(norm); 
+=======
+    double Matrix::getEuklidNorm()
+    {
+        double norm; 
+        if (_col == 0)
+        {
+            for (int i = 0; i < _row; i++)
+                norm += value[i][0];
+            norm = sqrt(norm);
+            return norm;
+        }
+   
+>>>>>>> a9fb4ae56063c14c4e04d115c523f1be85c9ebd8
     }
 
     //basic operation
