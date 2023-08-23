@@ -136,6 +136,19 @@ namespace MatrixAlgorithm
         return max; 
     }
 
+    double Matrix::getEuklischNorm()
+    {
+        double norm = 0; 
+        if (_col == 1)
+        {
+            for (int i = 0; i < _row; i++)
+            {
+                norm += pow(value[i][0], 2);
+            }
+        }
+        return sqrt(norm); 
+    }
+
     //basic operation
 
     std::vector<double>& Matrix::operator[](int n)
@@ -150,10 +163,10 @@ namespace MatrixAlgorithm
 
     Matrix Matrix::transpose()
     {
-        Matrix x = Matrix(value);
-        for (int i = 0; i < getRow(); i++)
+        Matrix x = Matrix(_col, _row, 0);
+        for (int i = 0; i < _row; i++)
         {
-            for (int j = 0; j < getCol(); j++)
+            for (int j = 0; j < _col; j++)
             {
                 x[j][i]=value[i][j];
             }
@@ -223,7 +236,23 @@ namespace MatrixAlgorithm
         return true;
     }
 
-    Matrix Matrix::dot(Matrix& A, Matrix& B)
+    const Matrix Matrix::operator|(Matrix& B)
+    {
+        if (_row != B.getRow())
+            throw "not possible! "; 
+        else
+        {
+            for (int i = 0; i < _row; i++)
+            {
+                value[i].reserve(_col+B.getCol());
+                for (int j = 0; j < B.getCol(); j++)
+                    value[i].push_back(B[i][j]); 
+            }
+        }
+        return *this; 
+    }
+
+    Matrix Matrix::dot(Matrix A, Matrix B)
     {
         int m = A.getRow();
         int n = B.getCol();
@@ -438,18 +467,17 @@ namespace MatrixAlgorithm
     }
 
 
-    bool Matrix::qr(Matrix A, std::vector<Matrix>& qr)
+    bool Matrix::qr(Matrix A, Matrix& q, Matrix& r)
     {
         int n = A.getRow();
-        qr.reserve(2); 
-        qr[0] = identity(n); 
+        q = identity(n); 
         Matrix v, u, e;
         double mu;
         for (int s = 0; s < n; s++)
         {
             double sum = 0;
             for (int i = s; i < n; i++)
-                sum += A(s, i)*A(s, i);
+                sum += A(i,s)*A(i,s);
             if (sum < 0)
                 mu = -sqrt(fabs(sum));
             else
@@ -457,8 +485,13 @@ namespace MatrixAlgorithm
             v = Matrix(n-s, 1, 0); 
             e = v; 
             e(0,0) = mu; 
-            for (int i = n-s; i < n; i++)
+            for (int i = s; i < n; i++)
                 v(i, 0) = A(i, s) - e(i, s);
+            u = v*(1/v.getEuklischNorm());
+            Matrix q_temp = identity(n);
+            q_temp = q_temp - dot(u, u.transpose())*2;
+            r = dot(q_temp, A); 
+
         }
         
     }
@@ -543,10 +576,11 @@ using namespace MatrixAlgorithm;
 int main()
 {
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
-    Matrix vec2 = Matrix({{1,2,4},{2,13,23},{4,23,77}});
+    Matrix vec2 = Matrix({{0,3,1},{0,4,-2},{2,1,2}});
     Matrix A = Matrix({{4,-1,1},{9,-8,9},{11,-11,12}});
     Matrix trans = vec1.transpose();
-    Matrix y,z;
+    Matrix y,z,q,r;
+    vec1.qr(vec2, q, r);
     std::vector<double> lambda;
     
 
