@@ -136,7 +136,6 @@ namespace MatrixAlgorithm
         return max; 
     }
 
-<<<<<<< HEAD
     double Matrix::getEuklischNorm()
     {
         double norm = 0; 
@@ -148,19 +147,6 @@ namespace MatrixAlgorithm
             }
         }
         return sqrt(norm); 
-=======
-    double Matrix::getEuklidNorm()
-    {
-        double norm; 
-        if (_col == 0)
-        {
-            for (int i = 0; i < _row; i++)
-                norm += value[i][0];
-            norm = sqrt(norm);
-            return norm;
-        }
-   
->>>>>>> a9fb4ae56063c14c4e04d115c523f1be85c9ebd8
     }
 
     //basic operation
@@ -233,6 +219,13 @@ namespace MatrixAlgorithm
             }
         }
         return result;
+    }
+
+    Matrix Matrix::operator*(Matrix& B)
+    {
+        Matrix result; 
+        result = dot(*this, B); 
+        return result; 
     }
 
     bool Matrix::operator==(Matrix& B)
@@ -487,12 +480,12 @@ namespace MatrixAlgorithm
         q = identity(n); 
         Matrix v, u, e;
         double mu;
-        for (int s = 0; s < n; s++)
+        for (int s = 0; s < n-1; s++)
         {
             double sum = 0;
             for (int i = s; i < n; i++)
                 sum += A(i,s)*A(i,s);
-            if (sum < 0)
+            if (A(s, s) < 0)
                 mu = -sqrt(fabs(sum));
             else
                 mu = sqrt(sum);
@@ -500,14 +493,53 @@ namespace MatrixAlgorithm
             e = v; 
             e(0,0) = mu; 
             for (int i = s; i < n; i++)
-                v(i, 0) = A(i, s) - e(i, s);
+                v(i-s, 0) = A(i, s) - e(i-s, 0);
             u = v*(1/v.getEuklischNorm());
-            Matrix q_temp = identity(n);
+            Matrix q_temp = identity(n-s);
+            Matrix q_ge = identity(n); 
             q_temp = q_temp - dot(u, u.transpose())*2;
-            r = dot(q_temp, A); 
-
+            for (int i = s; i < n; i++)
+            {
+                for (int j = s; j < n; j++)
+                    q_ge[i][j] = q_temp(i-s, j-s);
+            } 
+            q = dot(q_ge, q);
+            A = dot(q_ge, A);
+            
         }
-        
+        q = q.transpose(); 
+        r = A;
+        return true;
+    }
+
+    bool Matrix::orthogonalIteration(Matrix A, Matrix& eigen_vector, std::vector<double>& eigen_value)
+    {
+        const int iter = 200; 
+        int count = 0;
+        const int n = A.getCol(); 
+        Matrix Y, Q, R; 
+        eigen_value.resize(n); 
+        double eigen_value_prev[n]; 
+        for (int i = 0; i < n; i++) 
+        {
+            eigen_value[i] = 0;
+            eigen_value_prev[i] = 1; 
+        }
+        Q = identity(n); 
+        while (fabs(eigen_value[0]-eigen_value_prev[0]) > esp)
+        {
+            count++;
+            if (count > iter)
+                return false;
+            for (int i = 0; i < n; i++)
+                eigen_value_prev[i] = eigen_value[i];
+            Y = A*Q;
+            qr(Y, Q, R);
+            for (int i = 0; i < n; i++)
+                eigen_value[i] = R(i,i);
+        }
+        eigen_vector = Q;
+        return true;
     }
 
     Matrix Matrix::inverseL(Matrix& L)
@@ -594,8 +626,9 @@ int main()
     Matrix A = Matrix({{4,-1,1},{9,-8,9},{11,-11,12}});
     Matrix trans = vec1.transpose();
     Matrix y,z,q,r;
-    vec1.qr(vec2, q, r);
-    std::vector<double> lambda;
+    std::vector<double> eigen_value;
+    vec1.orthogonalIteration(A, y, eigen_value); 
+    std::cout << eigen_value[0] << ',' << eigen_value[1] << ',' << eigen_value[2] << std::endl;
     
 
 

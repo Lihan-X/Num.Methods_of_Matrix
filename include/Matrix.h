@@ -22,11 +22,7 @@ namespace MatrixAlgorithm
         const std::vector<std::vector<double>> getValue(); 
         static constexpr double esp =1e-10;
         double getMaximumNorm(); 
-<<<<<<< HEAD
         double getEuklischNorm(); 
-=======
-        double getEuklidNorm(); 
->>>>>>> a9fb4ae56063c14c4e04d115c523f1be85c9ebd8
 
 
         //basic operation
@@ -35,6 +31,7 @@ namespace MatrixAlgorithm
         Matrix operator+(Matrix B);
         Matrix operator-(Matrix B); 
         Matrix operator*(const double alpha);
+        Matrix operator*(Matrix& B); 
         bool operator==(Matrix& B);
         const Matrix operator|(Matrix& B); 
         Matrix dot(Matrix A, Matrix B); 
@@ -47,6 +44,7 @@ namespace MatrixAlgorithm
         bool gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled);
         bool gaussElimination_with_LR_decomp(Matrix& A, Matrix& z); 
         bool qr(Matrix A, Matrix& q, Matrix& r); 
+        bool orthogonalIteration(Matrix A, Matrix& eigen_vector, std::vector<double>& eigen_value); 
         Matrix inverseL(Matrix& L); 
         const double det();
         
