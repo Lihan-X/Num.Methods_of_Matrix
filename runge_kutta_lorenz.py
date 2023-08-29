@@ -17,40 +17,6 @@ def dp_singlestep(func, tk, xk, dt, order=4):
         xout = 5179/57600*f1-0*f2+7571/16695*f3+393/640*f4-92097/339200*f5+187/2100*f6+1/40*f7
     return xout
 
-def ode45(func, x0, time_span, ESP=1e-6, h0=5e-2):
-    t0 = time_span[0]
-    X = []
-    T = []
-    X.append(x0)
-    xin = x0
-    h = h0
-    t = t0
-    T.append(t0)
-    while t < time_span[1]:
-        eta_p = dp_singlestep(func, t0, x0, h, 4)
-        eta_q = dp_singlestep(func, t0, x0, h, 5)
-        max_err=0
-        if eta_p is float or int: 
-            max_err = math.fabs(eta_p-eta_q)
-        else:
-            for i in range(len(eta_p)):
-                err = math.fabs(eta_p[i]-eta_q[i])
-                if err > max_err:
-                    max_err = err
-        esp_pq = max_err
-        h_opt = ESP/esp_pq*h0
-        if h_opt >= h:
-            T.append(t)
-            xout = dp_singlestep(func, t, xin, h_opt, 4)
-            X.append(xout)
-            xin=xout
-            t+=h_opt
-        else:
-            h = h_opt
-            continue
-
-    return np.asarray(X), np.asarray(T)
-
 def lorenz(t,x):
     sigma = 10
     beta = 8/3
