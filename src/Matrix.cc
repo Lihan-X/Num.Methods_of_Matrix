@@ -611,6 +611,11 @@ namespace MatrixAlgorithm
         return d;
     }
 
+    Matrix qrWithShiftAndDeflation(Matrix A)
+    {
+        
+    }
+
     
 }
 

@@ -47,6 +47,7 @@ namespace MatrixAlgorithm
         bool orthogonalIteration(Matrix A, Matrix& eigen_vector, std::vector<double>& eigen_value); 
         Matrix inverseL(Matrix& L); 
         const double det();
+        Matrix qrWithShiftAndDeflation(Matrix A);
         
 
 
