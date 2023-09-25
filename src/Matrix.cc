@@ -3,336 +3,366 @@
 #include "../include/Matrix.h"
 #define TEST 1
 
-
-Matrix::Matrix(std::vector<std::vector<double>> value)
+namespace MatrixOperation
 {
-    int last=value[0].size();
-    for (auto it = value.begin(); it != value.end(); it++)
+    Matrix::Matrix(std::vector<std::vector<double>> value)
     {
-        if (it->size() == last)
+        int last=value[0].size();
+        for (auto it = value.begin(); it != value.end(); it++)
         {
-            last = it->size();
-            continue;
+            if (it->size() == last)
+            {
+                last = it->size();
+                continue;
+            }
+            else
+                return;
         }
-        else
-            return;
+        this->value = value;
+        _row = value.size();
+        _col = last;
+
     }
-    this->value = value;
-    _row = value.size();
-    _col = last;
 
-}
-
-Matrix::Matrix(const int row, const int col,  const double number)
-{
-    value.resize(row);
-    for (int i = 0; i < row; i++)
+    Matrix::Matrix(const int row, const int col,  const double number)
     {
-        for (int j = 0; j < col; j++)
+        value.resize(row);
+        for (int i = 0; i < row; i++)
         {
-            value[i].push_back(number);
+            for (int j = 0; j < col; j++)
+            {
+                value[i].push_back(number);
+            }
         }
+        this->_row = row;
+        this->_col = col;
+
     }
-    this->_row = row;
-    this->_col = col;
 
-}
-
-Matrix Matrix::identity(const int n)
-{
-    Matrix I = Matrix(n,n,0);
-    for (int i = 0; i < n; i++)
-        I[i][i] = 1;
-    return I;
-}
-
-std::string Matrix::toString()
-{
-    std::string vector_text = "";
-    vector_text += '[';
-    for (int i = 0; i < value.size(); i++)
+    Matrix Matrix::identity(const int n)
     {
+        Matrix I = Matrix(n,n,0);
+        for (int i = 0; i < n; i++)
+            I[i][i] = 1;
+        return I;
+    }
+
+    std::string Matrix::toString()
+    {
+        std::string vector_text = "";
         vector_text += '[';
-        for (int j = 0; j < value[i].size(); j++)
+        for (int i = 0; i < value.size(); i++)
         {
-            vector_text += std::to_string(value[i][j]);
-            if (j+1 != value[i].size())
-                vector_text += ',';
+            vector_text += '[';
+            for (int j = 0; j < value[i].size(); j++)
+            {
+                vector_text += std::to_string(value[i][j]);
+                if (j+1 != value[i].size())
+                    vector_text += ',';
+            }
+            vector_text += ']';
+            if (i+1 != value.size())
+                    vector_text += ",\n";
         }
-        vector_text += ']';
-        if (i+1 != value.size())
-                vector_text += ",\n";
+        vector_text += "]";
+        return vector_text;
     }
-    vector_text += "]";
-    return vector_text;
-}
 
-bool Matrix::isMatrix()
-{
-    int last=value[0].size();
-    for (auto it = value.begin(); it != value.end(); it++)
+    bool Matrix::isMatrix()
     {
-        if (it->size() == last)
+        int last=value[0].size();
+        for (auto it = value.begin(); it != value.end(); it++)
         {
-            last = it->size();
-            continue;
+            if (it->size() == last)
+            {
+                last = it->size();
+                continue;
+            }
+            else
+                return false;
         }
+        return true;
+    }
+
+    const int Matrix::getRow() const
+    {
+        return _row;
+    }
+
+    const int Matrix::getCol() const
+    {
+        return _col;
+    }
+
+    bool Matrix::isSymmetric()
+    {
+        if (_col != _row)
+            return false;
+        Matrix trans = transpose();
+        if  ( trans == *this)
+            return true;
         else
             return false;
     }
-    return true;
-}
 
-const int Matrix::getRow() const
-{
-    return _row;
-}
-
-const int Matrix::getCol() const
-{
-    return _col;
-}
-
-bool Matrix::isSymmetric()
-{
-    if (_col != _row)
-        return false;
-    Matrix trans = transpose();
-    if  ( trans == *this)
-        return true;
-    else
-        return false;
-}
-
-const std::vector<std::vector<double>> Matrix::getValue() const
-{
-    return value; 
-}
-
-double Matrix::getMaximumNorm()
-{
-    double max = 0;
-    for (auto it = value.begin(); it != value.end(); it++)
+    const std::vector<std::vector<double>> Matrix::getValue() const
     {
-        for(auto it1 = it->begin(); it1 != it->end(); it1++)
-        {
-            if (fabs(*it1) > max)
-            {
-                max = *it1; 
-            }
-
-        }
+        return value; 
     }
 
-    return max; 
-}
-
-double Matrix::getEuklischNorm()
-{
-    double norm = 0; 
-    if (_col == 1)
+    double Matrix::getMaximumNorm()
     {
+        double max = 0;
+        for (auto it = value.begin(); it != value.end(); it++)
+        {
+            for(auto it1 = it->begin(); it1 != it->end(); it1++)
+            {
+                if (fabs(*it1) > max)
+                {
+                    max = *it1; 
+                }
+
+            }
+        }
+
+        return max; 
+    }
+
+    double Matrix::getEuklischNorm()
+    {
+        double norm = 0; 
+        if (_col == 1)
+        {
+            for (int i = 0; i < _row; i++)
+            {
+                norm += pow(value[i][0], 2);
+            }
+        }
+        return sqrt(norm); 
+    }
+
+    //basic operation
+
+    std::vector<double>& Matrix::operator[](int n)
+    {
+        return value[n];
+    }
+    const std::vector<double>& Matrix::operator[](int n) const
+    {
+        return value[n];
+    }
+
+    double& Matrix::operator()(const unsigned int row, const unsigned int col)
+    {
+        return value[row][col];
+    }
+
+    Matrix Matrix::transpose()
+    {
+        Matrix x = Matrix(_col, _row, 0);
         for (int i = 0; i < _row; i++)
         {
-            norm += pow(value[i][0], 2);
+            for (int j = 0; j < _col; j++)
+            {
+                x[j][i]=value[i][j];
+            }
         }
+        return x;
     }
-    return sqrt(norm); 
-}
 
-//basic operation
 
-std::vector<double>& Matrix::operator[](int n)
-{
-    return value[n];
-}
-const std::vector<double>& Matrix::operator[](int n) const
-{
-    return value[n];
-}
-
-double& Matrix::operator()(const unsigned int row, const unsigned int col)
-{
-    return value[row][col];
-}
-
-Matrix Matrix::transpose()
-{
-    Matrix x = Matrix(_col, _row, 0);
-    for (int i = 0; i < _row; i++)
+    Matrix Matrix::operator*(Matrix B)
     {
-        for (int j = 0; j < _col; j++)
-        {
-            x[j][i]=value[i][j];
-        }
+        Matrix result; 
+        result = dot(*this, B); 
+        return result; 
     }
-    return x;
-}
 
-Matrix Matrix::operator-(Matrix B)
-{
-    if ((getCol()==B.getCol()) && (getRow() == B.getRow()))
+
+    Matrix Matrix::operator*(const double& alpha)
+    {
+        Matrix result = *this;
+        for (auto it_row = value.begin(); it_row != value.end(); it_row++)
+        {
+            for (auto it = it_row->begin(); it != it_row->end(); it++)
+                *it=(*it)*alpha;
+
+        }
+        return result;
+    }
+
+    bool Matrix::operator==(Matrix& B)
     {
         for (int i = 0; i < getRow(); i++)
         {
             for (int j = 0; j < getCol(); j++)
             {
-                B[i][j]=value[i][j]-B[i][j];
+                if (value[i][j] == B[i][j])
+                    continue;
+                else
+                    return false;
             }
         }
-        return B;
+        return true;
     }
-    else
-        throw;
-}
 
-Matrix Matrix::operator*(Matrix B)
-{
-    Matrix result; 
-    result = dot(*this, B); 
-    return result; 
-}
-
-Matrix Matrix::operator+(Matrix B)
-{
-    if ((getCol()==B.getCol()) && (getRow() == B.getRow()))
+    const Matrix Matrix::operator|(Matrix& B)
     {
-        for (auto i = 0; i < _row; i++)
+        if (_row != B.getRow())
+            throw; 
+        else
         {
-            for (auto j = 0; j < getCol(); j++)
+            for (int i = 0; i < _row; i++)
             {
-                B[i][j]=B[i][j]+value[i][j];
+                value[i].reserve(_col+B.getCol());
+                for (int j = 0; j < B.getCol(); j++)
+                    value[i].push_back(B[i][j]); 
             }
         }
-        return B;
+        return *this; 
     }
-    else
-        throw;
-}
 
-Matrix Matrix::operator*(const double& alpha)
-{
-    Matrix result = *this;
-    for (auto it_row = value.begin(); it_row != value.end(); it_row++)
+    Matrix Matrix::dot(Matrix A, Matrix B)
     {
-        for (auto it = it_row->begin(); it != it_row->end(); it++)
-            *it=(*it)*alpha;
-
-    }
-    return result;
-}
-
-bool Matrix::operator==(Matrix& B)
-{
-    for (int i = 0; i < getRow(); i++)
-    {
-        for (int j = 0; j < getCol(); j++)
+        int m = A.getRow();
+        int n = B.getCol();
+        if ((A.getCol()) != (B.getRow()))
+            throw "not possible! "; 
+        Matrix product = Matrix(m, n, 0);
+        for (int i = 0; i < m; i++)
         {
-            if (value[i][j] == B[i][j])
-                continue;
-            else
-                return false;
-        }
-    }
-    return true;
-}
-
-const Matrix Matrix::operator|(Matrix& B)
-{
-    if (_row != B.getRow())
-        throw; 
-    else
-    {
-        for (int i = 0; i < _row; i++)
-        {
-            value[i].reserve(_col+B.getCol());
-            for (int j = 0; j < B.getCol(); j++)
-                value[i].push_back(B[i][j]); 
-        }
-    }
-    return *this; 
-}
-
-Matrix Matrix::dot(Matrix A, Matrix B)
-{
-    int m = A.getRow();
-    int n = B.getCol();
-    if ((A.getCol()) != (B.getRow()))
-        throw "not possible! "; 
-    Matrix product = Matrix(m, n, 0);
-    for (int i = 0; i < m; i++)
-    {
-        for (int j = 0; j<n; j++)
-        {
-            double sum = 0;
-            for (int a = 0; a < A.getCol(); a++)
-                sum += A[i][a]*B[a][j];
-            
-            product[i][j] = sum; 
-        }
-    }
-    return product;
-
-}
-
-Matrix Matrix::elementOperation(double (*func) (double ele))
-{
-    Matrix result = *this; 
-    for (auto it_row = value.begin(); it_row != value.end(); it_row++)
-    {
-        for (auto it = it_row->begin(); it != it_row->end(); it++)
-            *it = func(*it);
-    }
-    return result; 
-}
-
-
-//linear symmetric 
-HRESULT Matrix::choleskyDecomp(Matrix& L)
-{
-    HRESULT hr = S_OK;
-    L = Matrix(getRow(), getCol(), 0); 
-    double sum = 0;
-    double s; 
-    for (int i = 0; i < L.getRow(); i++)
-    {
-        for (int j = 0; j <= i; j++)
-        {
-            sum = 0;
-            for (int k = 0; k < j; k++)
+            for (int j = 0; j<n; j++)
             {
-                sum += L[i][k]*L[j][k];
+                double sum = 0;
+                for (int a = 0; a < A.getCol(); a++)
+                    sum += A[i][a]*B[a][j];
+                
+                product[i][j] = sum; 
             }
-            s = value[i][j] - sum;
-            if (j == i)
+        }
+        return product;
+
+    }
+
+    Matrix Matrix::elementOperation(double (*func) (double ele))
+    {
+        Matrix result = *this; 
+        for (auto it_row = value.begin(); it_row != value.end(); it_row++)
+        {
+            for (auto it = it_row->begin(); it != it_row->end(); it++)
+                *it = func(*it);
+        }
+        return result; 
+    }
+
+
+    //linear symmetric 
+    HRESULT Matrix::choleskyDecomp(Matrix& L)
+    {
+        HRESULT hr = S_OK;
+        L = Matrix(getRow(), getCol(), 0); 
+        double sum = 0;
+        double s; 
+        for (int i = 0; i < L.getRow(); i++)
+        {
+            for (int j = 0; j <= i; j++)
             {
-                if (s < Matrix::esp)
+                sum = 0;
+                for (int k = 0; k < j; k++)
+                {
+                    sum += L[i][k]*L[j][k];
+                }
+                s = value[i][j] - sum;
+                if (j == i)
+                {
+                    if (s < Matrix::esp)
+                        return 0;
+                    L[i][i] = sqrt(s);
+                }
+                else
+                {
+                    L[i][j] = s/L[j][j];
+                }
+            }
+        }
+
+        return hr;
+    }
+
+    HRESULT Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
+    {
+        HRESULT hr = S_OK;
+        //pivot suche
+        int n = A.getRow();
+        int q = B.getCol();
+        double p; //pivotzeilen
+        double piv;
+        double l;
+        
+        for (int s = 0; s < n-1; s++)
+        {
+            if (pivot_enabled)
+            {
+                //pivot suche
+                p = s;
+                piv = fabs(A[s][s]);
+                for (int i = s+1; i < n; i++)
+                {
+                    if (fabs(A[i][s]) > piv)
+                    {
+                        p = i;
+                        piv = fabs(A[i][s]);
+                    }
+                }
+                if (piv <= Matrix::esp)
                     return 0;
-                L[i][i] = sqrt(s);
+                //Zeilenvertauschung
+                if (p != s)
+                {
+                    for (int j = s; j < n; j++)
+                    {
+                        l = A[s][j];
+                        A[s][j] = A[p][j];
+                        A[p][j] = l;
+                    }
+                    for (int k = 0; k < q; k++)
+                    {
+                        l = B[s][k];
+                        B[s][k] = B[p][k];
+                        B[p][k] = l;
+                    }
+                }
             }
-            else
+            //Elimination
+            for (int i = s+1; i < n; i++)
             {
-                L[i][j] = s/L[j][j];
+                l = A[i][s]/A[s][s];
+                A[i][s] = 0;
+                for (int j = s+1; j < n; j++)
+                    A[i][j] = A[i][j] - l*A[s][j];
+                for (int k = 0; k < q; k++)
+                    B[i][k] = B[i][k] - l*B[s][k];
             }
+
         }
+
+        if (fabs(A[n-1][n-1]) <= Matrix::esp)
+            hr = S_FALSE;
+
+        return hr;
     }
 
-    return hr;
-}
-
-HRESULT Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
-{
-    HRESULT hr = S_OK;
-    //pivot suche
-    int n = A.getRow();
-    int q = B.getCol();
-    double p; //pivotzeilen
-    double piv;
-    double l;
-    
-    for (int s = 0; s < n-1; s++)
+    HRESULT Matrix::gaussElimination_with_LR_decomp(Matrix& A, Matrix& z)
     {
-        if (pivot_enabled)
+        int n = A.getRow();
+        z = Matrix(n,1,0);
+        for (int i = 0; i < n; i++)
+            z[i][0] = i;
+        double p; //pivotzeilen
+        double piv;
+        double l;
+        
+        for (int s = 0; s < n-1; s++)
         {
             //pivot suche
             p = s;
@@ -350,155 +380,93 @@ HRESULT Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
             //Zeilenvertauschung
             if (p != s)
             {
-                for (int j = s; j < n; j++)
+                int j;
+                for (j = 0; j < n; j++)
                 {
                     l = A[s][j];
                     A[s][j] = A[p][j];
                     A[p][j] = l;
                 }
-                for (int k = 0; k < q; k++)
+                    j = z[s][0];
+                    z[s][0] = z[p][0]; 
+                    z[p][0] = j;    
+            }
+            //Elimination
+            for (int i = s+1; i < n; i++)
+            {
+                l = A[i][s]/A[s][s];
+                A[i][s] = l;
+                for (int j = s+1; j < n; j++)
+                    A[i][j] = A[i][j] - l*A[s][j];
+            }
+
+        }
+
+        if (fabs(A[n-1][n-1]) <= Matrix::esp)
+            return false;
+
+        return true;
+
+    }
+
+
+    HRESULT Matrix::qr(Matrix& q, Matrix& r)
+    {
+        
+    }
+
+
+    const double Matrix::det()
+    {
+        int n = _col; 
+        double p; //pivotzeilen
+        double piv;
+        double l;
+        
+        for (int s = 0; s < n-1; s++)
+        {
+            //pivot suche
+            p = s;
+            piv = fabs(value[s][s]);
+            for (int i = s+1; i < n; i++)
+            {
+                if (fabs(value[i][s]) > piv)
                 {
-                    l = B[s][k];
-                    B[s][k] = B[p][k];
-                    B[p][k] = l;
+                    p = i;
+                    piv = fabs(value[i][s]);
                 }
             }
-        }
-        //Elimination
-        for (int i = s+1; i < n; i++)
-        {
-            l = A[i][s]/A[s][s];
-            A[i][s] = 0;
-            for (int j = s+1; j < n; j++)
-                A[i][j] = A[i][j] - l*A[s][j];
-            for (int k = 0; k < q; k++)
-                B[i][k] = B[i][k] - l*B[s][k];
+            if (piv <= Matrix::esp)
+                return 0;
+            //Zeilenvertauschung
+            if (p != s)
+            {
+                for (int j = s; j < n; j++)
+                {
+                    l = value[s][j];
+                    value[s][j] = value[p][j];
+                    value[p][j] = l;
+                }
+            }
+            
+            //Elimination
+            for (int i = s+1; i < n; i++)
+            {
+                l = value[i][s]/value[s][s];
+                value[i][s] = 0;
+                for (int j = s+1; j < n; j++)
+                    value[i][j] = value[i][j] - l*value[s][j];
+            }
+
         }
 
+        double d = 1;
+        for (int i = 0; i < n; i++)
+            d *= value[i][i]; 
+        return d;
     }
 
-    if (fabs(A[n-1][n-1]) <= Matrix::esp)
-        hr = S_FALSE;
 
-    return hr;
-}
-
-HRESULT Matrix::gaussElimination_with_LR_decomp(Matrix& A, Matrix& z)
-{
-    int n = A.getRow();
-    z = Matrix(n,1,0);
-    for (int i = 0; i < n; i++)
-        z[i][0] = i;
-    double p; //pivotzeilen
-    double piv;
-    double l;
-    
-    for (int s = 0; s < n-1; s++)
-    {
-        //pivot suche
-        p = s;
-        piv = fabs(A[s][s]);
-        for (int i = s+1; i < n; i++)
-        {
-            if (fabs(A[i][s]) > piv)
-            {
-                p = i;
-                piv = fabs(A[i][s]);
-            }
-        }
-        if (piv <= Matrix::esp)
-            return 0;
-        //Zeilenvertauschung
-        if (p != s)
-        {
-            int j;
-            for (j = 0; j < n; j++)
-            {
-                l = A[s][j];
-                A[s][j] = A[p][j];
-                A[p][j] = l;
-            }
-                j = z[s][0];
-                z[s][0] = z[p][0]; 
-                z[p][0] = j;    
-        }
-        //Elimination
-        for (int i = s+1; i < n; i++)
-        {
-            l = A[i][s]/A[s][s];
-            A[i][s] = l;
-            for (int j = s+1; j < n; j++)
-                A[i][j] = A[i][j] - l*A[s][j];
-        }
-
-    }
-
-    if (fabs(A[n-1][n-1]) <= Matrix::esp)
-        return false;
-
-    return true;
-
-}
-
-
-HRESULT Matrix::qr(Matrix& q, Matrix& r)
-{
-    
-}
-
-
-const double Matrix::det()
-{
-    int n = _col; 
-    double p; //pivotzeilen
-    double piv;
-    double l;
-    
-    for (int s = 0; s < n-1; s++)
-    {
-        //pivot suche
-        p = s;
-        piv = fabs(value[s][s]);
-        for (int i = s+1; i < n; i++)
-        {
-            if (fabs(value[i][s]) > piv)
-            {
-                p = i;
-                piv = fabs(value[i][s]);
-            }
-        }
-        if (piv <= Matrix::esp)
-            return 0;
-        //Zeilenvertauschung
-        if (p != s)
-        {
-            for (int j = s; j < n; j++)
-            {
-                l = value[s][j];
-                value[s][j] = value[p][j];
-                value[p][j] = l;
-            }
-        }
-        
-        //Elimination
-        for (int i = s+1; i < n; i++)
-        {
-            l = value[i][s]/value[s][s];
-            value[i][s] = 0;
-            for (int j = s+1; j < n; j++)
-                value[i][j] = value[i][j] - l*value[s][j];
-        }
-
-    }
-
-    double d = 1;
-    for (int i = 0; i < n; i++)
-        d *= value[i][i]; 
-    return d;
-}
-
-namespace MatrixOperation
-{
     Matrix forwardSubstitution(const Matrix& L, const Matrix& b)
     {
         int q = b.getCol();
@@ -548,6 +516,72 @@ namespace MatrixOperation
         }
         return A;
     }
+
+    Matrix LDUIteration(const Matrix& A, const Matrix& B)
+    {
+        Matrix L, D_inverse, U, x, x_last;
+        x = Matrix(A.getRow(), B.getCol(), 1);
+
+        L = Matrix(A.getRow(), A.getCol(), 0); 
+        D_inverse = Matrix(A.getRow(), A.getCol(), 0); 
+        U = Matrix(A.getRow(), A.getCol(), 0); 
+        for (int i = 0; i < A.getRow(); i++)
+        {
+            for (int j = 0; j < A.getCol(); j++)
+            {
+                if (i < j)
+                    L[i][j] = A[i][j];
+                if (i == j)
+                    D_inverse[i][j] = 1/A[i][j]; 
+                if (i > j)
+                    U[i][j] = A[i][j]; 
+            }
+        }
+
+        unsigned int n = 0; 
+        while(n < 1000)
+        {
+            x_last = x; 
+            x = D_inverse*(B - L*x_last - U*x);
+            n++; 
+        }
+    }
+
+    Matrix operator-(const Matrix& A, const Matrix& B)
+    {
+        Matrix result = Matrix(A);
+        if ((A.getCol()==B.getCol()) && (A.getRow() == B.getRow()))
+        {
+            for (int i = 0; i < A.getRow(); i++)
+            {
+                for (int j = 0; j < A.getCol(); j++)
+                {
+                    result[i][j]=A[i][j]-B[i][j];
+                }
+            }
+            return result;
+        }
+        else
+            throw;
+    }
+
+    Matrix operator+(const Matrix& A, const Matrix& B)
+    {
+        Matrix result = Matrix(A);
+        if ((A.getCol()==B.getCol()) && (A.getRow() == B.getRow()))
+        {
+            for (auto i = 0; i < A.getRow(); i++)
+            {
+                for (auto j = 0; j < A.getCol(); j++)
+                {
+                    result[i][j]=A[i][j]+B[i][j];
+                }
+            }
+            return result;
+        }
+        else
+            throw;
+    }
 };
 
     
@@ -557,6 +591,7 @@ namespace MatrixOperation
 #if TEST
 //tests
 #include <iostream>
+using namespace MatrixOperation;
 int main()
 {
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
