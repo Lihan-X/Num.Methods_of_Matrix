@@ -69,6 +69,6 @@ namespace MatrixOperation
 {
     Matrix forwardSubstitution(const Matrix& L, const Matrix& b); 
     Matrix backwardSubstitution(const Matrix& R, const Matrix& b); 
-    Matrix operator*(const double& alpha, const Matrix& A);
+    Matrix operator*(const double& alpha, Matrix A);
 };
 
