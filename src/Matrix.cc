@@ -288,8 +288,9 @@ Matrix Matrix::elementOperation(double (*func) (double ele))
 
 
 //linear symmetric 
-bool Matrix::choleskyDecomp(Matrix& L)
+HRESULT Matrix::choleskyDecomp(Matrix& L)
 {
+    HRESULT hr = S_OK;
     L = Matrix(getRow(), getCol(), 0); 
     double sum = 0;
     double s; 
@@ -316,11 +317,12 @@ bool Matrix::choleskyDecomp(Matrix& L)
         }
     }
 
-    return 1;
+    return hr;
 }
 
-bool Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
+HRESULT Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
 {
+    HRESULT hr = S_OK;
     //pivot suche
     int n = A.getRow();
     int q = B.getCol();
@@ -376,12 +378,12 @@ bool Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
     }
 
     if (fabs(A[n-1][n-1]) <= Matrix::esp)
-        return false;
+        hr = S_FALSE;
 
-    return true;
+    return hr;
 }
 
-bool Matrix::gaussElimination_with_LR_decomp(Matrix& A, Matrix& z)
+HRESULT Matrix::gaussElimination_with_LR_decomp(Matrix& A, Matrix& z)
 {
     int n = A.getRow();
     z = Matrix(n,1,0);
@@ -439,73 +441,11 @@ bool Matrix::gaussElimination_with_LR_decomp(Matrix& A, Matrix& z)
 }
 
 
-bool Matrix::qr(Matrix A, Matrix& q, Matrix& r)
+HRESULT Matrix::qr(Matrix& q, Matrix& r)
 {
-    int n = A.getRow();
-    q = identity(n); 
-    Matrix v, u, e;
-    double mu;
-    for (int s = 0; s < n-1; s++)
-    {
-        double sum = 0;
-        for (int i = s; i < n; i++)
-            sum += A(i,s)*A(i,s);
-        if (A(s, s) < 0)
-            mu = -sqrt(fabs(sum));
-        else
-            mu = sqrt(sum);
-        v = Matrix(n-s, 1, 0); 
-        e = v; 
-        e(0,0) = mu; 
-        for (int i = s; i < n; i++)
-            v(i-s, 0) = A(i, s) - e(i-s, 0);
-        u = v*(1/v.getEuklischNorm());
-        Matrix q_temp = identity(n-s);
-        Matrix q_ge = identity(n); 
-        q_temp = q_temp - dot(u, u.transpose())*2;
-        for (int i = s; i < n; i++)
-        {
-            for (int j = s; j < n; j++)
-                q_ge[i][j] = q_temp(i-s, j-s);
-        } 
-        q = dot(q_ge, q);
-        A = dot(q_ge, A);
-        
-    }
-    q = q.transpose(); 
-    r = A;
-    return true;
+    
 }
 
-bool Matrix::orthogonalIteration(Matrix A, Matrix& eigen_vector, std::vector<double>& eigen_value)
-{
-    const int iter = 200; 
-    int count = 0;
-    const int n = A.getCol(); 
-    Matrix Y, Q, R; 
-    eigen_value.resize(n); 
-    double eigen_value_prev[n]; 
-    for (int i = 0; i < n; i++) 
-    {
-        eigen_value[i] = 0;
-        eigen_value_prev[i] = 1; 
-    }
-    Q = identity(n); 
-    while (fabs(eigen_value[0]-eigen_value_prev[0]) > esp)
-    {
-        count++;
-        if (count > iter)
-            return false;
-        for (int i = 0; i < n; i++)
-            eigen_value_prev[i] = eigen_value[i];
-        Y = A*Q;
-        qr(Y, Q, R);
-        for (int i = 0; i < n; i++)
-            eigen_value[i] = R(i,i);
-    }
-    eigen_vector = Q;
-    return true;
-}
 
 const double Matrix::det()
 {

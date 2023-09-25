@@ -8,7 +8,10 @@
 #define fabs fabs_
 #define cos cos_ 
 #define sin sin_ 
+#else
+#include "../include/hresult.h"
 #endif
+
 
 
 
@@ -49,11 +52,10 @@ public:
     
 
     //linear symmetric 
-    bool choleskyDecomp(Matrix& L); 
-    bool gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled);
-    bool gaussElimination_with_LR_decomp(Matrix& A, Matrix& z); 
-    bool qr(Matrix A, Matrix& q, Matrix& r); 
-    bool orthogonalIteration(Matrix A, Matrix& eigen_vector, std::vector<double>& eigen_value); 
+    HRESULT choleskyDecomp(Matrix& L); 
+    HRESULT gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled);
+    HRESULT gaussElimination_with_LR_decomp(Matrix& A, Matrix& z); 
+    HRESULT qr(Matrix& q, Matrix& r); 
     const double det();
     
 
