@@ -10,34 +10,38 @@
 #define sin sin_ 
 #endif
 
+
+
 //initialise matrix
 class Matrix
 {
 public:
     Matrix() {};
     Matrix(std::vector<std::vector<double>> value);
-    Matrix(Matrix& matrix); //copy
+    Matrix(const Matrix& matrix) = default; //copy
     Matrix(const int column, const int row, const double number);
-    Matrix identity(const int n);
+    Matrix identity(const int n); // create a n identity matrix
     std::string toString();
     bool isMatrix();
-    const int getRow();
-    const int getCol();
-    std::vector<double>& operator[](int n);
+    const int getRow() const;
+    const int getCol() const;
     bool isSymmetric(); 
-    const std::vector<std::vector<double>> getValue(); 
+    const std::vector<std::vector<double>> getValue() const; 
     static constexpr double esp =1.11e-16;
     double getMaximumNorm(); 
     double getEuklischNorm(); 
 
 
     //basic operation
+    std::vector<double>& operator[](int n);
+    const std::vector<double>& operator[](int n) const; 
     double& operator()(const unsigned int row, const unsigned int col);
     Matrix transpose();
-    Matrix operator+(Matrix B);
     Matrix operator-(Matrix B); 
-    Matrix operator*(const double alpha);
-    Matrix operator*(Matrix& B); 
+    Matrix operator*(Matrix B); 
+    Matrix operator+(Matrix B);
+    Matrix operator*(const double& alpha);
+
     bool operator==(Matrix& B);
     const Matrix operator|(Matrix& B); 
     Matrix dot(Matrix A, Matrix B); 
@@ -45,14 +49,11 @@ public:
     
 
     //linear symmetric 
-    bool choleskyDecomp(Matrix& A, Matrix& L); 
-    Matrix forwardSubstitution(Matrix& L, Matrix& b); 
-    Matrix backwardSubstitution(Matrix& R, Matrix& b); 
+    bool choleskyDecomp(Matrix& L); 
     bool gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled);
     bool gaussElimination_with_LR_decomp(Matrix& A, Matrix& z); 
     bool qr(Matrix A, Matrix& q, Matrix& r); 
     bool orthogonalIteration(Matrix A, Matrix& eigen_vector, std::vector<double>& eigen_value); 
-    Matrix inverseL(Matrix& L); 
     const double det();
     
 
@@ -63,4 +64,11 @@ private:
     int _row;
 };
 
+
+namespace MatrixOperation
+{
+    Matrix forwardSubstitution(const Matrix& L, const Matrix& b); 
+    Matrix backwardSubstitution(const Matrix& R, const Matrix& b); 
+    Matrix operator*(const double& alpha, const Matrix& A);
+};
 

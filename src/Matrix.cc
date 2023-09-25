@@ -23,13 +23,6 @@ Matrix::Matrix(std::vector<std::vector<double>> value)
 
 }
 
-Matrix::Matrix(Matrix& matrix)
-{
-    value = matrix.getValue();
-    _row = matrix.getRow(); 
-    _col = matrix.getCol();
-}
-
 Matrix::Matrix(const int row, const int col,  const double number)
 {
     value.resize(row);
@@ -90,12 +83,12 @@ bool Matrix::isMatrix()
     return true;
 }
 
-const int Matrix::getRow()
+const int Matrix::getRow() const
 {
     return _row;
 }
 
-const int Matrix::getCol()
+const int Matrix::getCol() const
 {
     return _col;
 }
@@ -111,7 +104,7 @@ bool Matrix::isSymmetric()
         return false;
 }
 
-const std::vector<std::vector<double>> Matrix::getValue()
+const std::vector<std::vector<double>> Matrix::getValue() const
 {
     return value; 
 }
@@ -153,6 +146,10 @@ std::vector<double>& Matrix::operator[](int n)
 {
     return value[n];
 }
+const std::vector<double>& Matrix::operator[](int n) const
+{
+    return value[n];
+}
 
 double& Matrix::operator()(const unsigned int row, const unsigned int col)
 {
@@ -172,23 +169,6 @@ Matrix Matrix::transpose()
     return x;
 }
 
-Matrix Matrix::operator+(Matrix B)
-{
-    if ((getCol()==B.getCol()) && (getRow() == B.getRow()))
-    {
-        for (int i = 0; i < getRow(); i++)
-        {
-            for (int j = 0; j < getCol(); j++)
-            {
-                B[i][j]=B[i][j]+value[i][j];
-            }
-        }
-        return B;
-    }
-    else
-        throw;
-}
-
 Matrix Matrix::operator-(Matrix B)
 {
     if ((getCol()==B.getCol()) && (getRow() == B.getRow()))
@@ -206,24 +186,40 @@ Matrix Matrix::operator-(Matrix B)
         throw;
 }
 
-Matrix Matrix::operator*(const double alpha)
-{
-    Matrix result = *this;
-    for (int i = 0; i < result.getRow(); i++)
-    {
-        for (int j = 0; j < result.getCol(); j++)
-        {
-            result[i][j]=result[i][j]*alpha;
-        }
-    }
-    return result;
-}
-
-Matrix Matrix::operator*(Matrix& B)
+Matrix Matrix::operator*(Matrix B)
 {
     Matrix result; 
     result = dot(*this, B); 
     return result; 
+}
+
+Matrix Matrix::operator+(Matrix B)
+{
+    if ((getCol()==B.getCol()) && (getRow() == B.getRow()))
+    {
+        for (auto i = 0; i < _row; i++)
+        {
+            for (auto j = 0; j < getCol(); j++)
+            {
+                B[i][j]=B[i][j]+value[i][j];
+            }
+        }
+        return B;
+    }
+    else
+        throw;
+}
+
+Matrix Matrix::operator*(const double& alpha)
+{
+    Matrix result = *this;
+    for (auto it_row = value.begin(); it_row != value.end(); it_row++)
+    {
+        for (auto it = it_row->begin(); it != it_row->end(); it++)
+            *it=(*it)*alpha;
+
+    }
+    return result;
 }
 
 bool Matrix::operator==(Matrix& B)
@@ -282,19 +278,19 @@ Matrix Matrix::dot(Matrix A, Matrix B)
 Matrix Matrix::elementOperation(double (*func) (double ele))
 {
     Matrix result = *this; 
-    for (int i = 0; i < _row; i++)
+    for (auto it_row = value.begin(); it_row != value.end(); it_row++)
     {
-        for (int j = 0; j < _col; j++)
-            result[i][j] = func(value[i][j]);
+        for (auto it = it_row->begin(); it != it_row->end(); it++)
+            *it = func(*it);
     }
     return result; 
 }
 
 
 //linear symmetric 
-bool Matrix::choleskyDecomp(Matrix& A, Matrix& L)
+bool Matrix::choleskyDecomp(Matrix& L)
 {
-    L = Matrix(A.getRow(), A.getCol(), 0); 
+    L = Matrix(getRow(), getCol(), 0); 
     double sum = 0;
     double s; 
     for (int i = 0; i < L.getRow(); i++)
@@ -306,7 +302,7 @@ bool Matrix::choleskyDecomp(Matrix& A, Matrix& L)
             {
                 sum += L[i][k]*L[j][k];
             }
-            s = A[i][j] - sum;
+            s = value[i][j] - sum;
             if (j == i)
             {
                 if (s < Matrix::esp)
@@ -321,46 +317,6 @@ bool Matrix::choleskyDecomp(Matrix& A, Matrix& L)
     }
 
     return 1;
-}
-
-Matrix Matrix::forwardSubstitution(Matrix& L, Matrix& b)
-{
-    int q = b.getCol();
-    int n = b.getRow();
-    Matrix x = Matrix(n, q, 0);
-    for (int k =0; k < q; k++)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            double sum = 0;
-            for (int j = 0; j <= i-1; j++)
-            {
-                sum += L[i][j]*x[j][k];
-            }
-            x[i][k] = (b[i][k] - sum)/L[i][i];
-        }
-    }
-    return x;
-}
-
-Matrix Matrix::backwardSubstitution(Matrix& R, Matrix& b)
-{
-    int n = b.getRow();
-    int q = b.getCol();
-    Matrix x = Matrix(b.getRow(), b.getCol(), 0);
-    for (int k =0; k < q; k++)
-    {
-        for (int i = n-1; i >= 0; i--)
-        {
-            double sum = 0;
-            for (int j = i+1; j < n; j++)
-            {
-                sum += R[i][j]*x[j][k];
-            }
-            x[i][k] = (b[i][k] - sum)/R[i][i];
-        }
-    }
-    return x;
 }
 
 bool Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
@@ -551,25 +507,6 @@ bool Matrix::orthogonalIteration(Matrix A, Matrix& eigen_vector, std::vector<dou
     return true;
 }
 
-Matrix Matrix::inverseL(Matrix& L)
-{
-    Matrix result = L;
-    for (int i = 0; i < L.getRow(); i++)
-    {
-        result[i][i] = 1 / L[i][i];
-        for (int j = 0; i <= i-1; j++)
-        {
-            double sum = 0;
-            for (int k = j; k <= i-1; k++)
-            {
-                sum += L[i][k]*result[k][j];
-            }
-            result[i][j] = -sum/L[i][i]; 
-        }
-    }
-    return result;
-}
-
 const double Matrix::det()
 {
     int n = _col; 
@@ -620,7 +557,58 @@ const double Matrix::det()
     return d;
 }
 
+namespace MatrixOperation
+{
+    Matrix forwardSubstitution(const Matrix& L, const Matrix& b)
+    {
+        int q = b.getCol();
+        int n = b.getRow();
+        Matrix x = Matrix(n, q, 0);
+        for (int k =0; k < q; k++)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                double sum = 0;
+                for (int j = 0; j <= i-1; j++)
+                {
+                    sum += L[i][j]*x[j][k];
+                }
+                x[i][k] = (b[i][k] - sum)/L[i][i];
+            }
+        }
+        return x;
+    } 
+    Matrix backwardSubstitution(const Matrix& R, const Matrix& b)
+    {
+        int n = b.getRow();
+        int q = b.getCol();
+        Matrix x = Matrix(b.getRow(), b.getCol(), 0);
+        for (int k =0; k < q; k++)
+        {
+            for (int i = n-1; i >= 0; i--)
+            {
+                double sum = 0;
+                for (int j = i+1; j < n; j++)
+                {
+                    sum += R[i][j]*x[j][k];
+                }
+                x[i][k] = (b[i][k] - sum)/R[i][i];
+            }
+        }
+        return x;
+    }
 
+    Matrix operator*(const double& alpha, Matrix A)
+    {
+        for (int i = 0; i < A.getRow(); i++)
+        {
+            for (int j = 0; j < A.getCol(); j++)
+                A[i][j]=A[i][j]*alpha;
+
+        }
+        return A;
+    }
+};
 
     
 
@@ -634,11 +622,11 @@ int main()
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{0,3,1},{0,4,-2},{2,1,2}});
     Matrix A = Matrix({{4,-1,1},{9,-8,9},{11,-11,12}});
-    Matrix trans = vec1.transpose();
-    Matrix y,z,q,r;
-    std::vector<double> eigen_value;
-    vec1.orthogonalIteration(A, y, eigen_value); 
-    std::cout << eigen_value[0] << ',' << eigen_value[1] << ',' << eigen_value[2] << std::endl;
+    Matrix result = vec1 * vec2;
+    Matrix b = Matrix(3, 1, 1);
+    std::cout << "b is " << b.toString() << std::endl; 
+    Matrix x = MatrixOperation::backwardSubstitution(vec1,b);
+    std::cout << x.toString() << std::endl;
     
     
 }
