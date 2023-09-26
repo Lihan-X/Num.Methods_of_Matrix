@@ -27,12 +27,13 @@ namespace MatrixOperation
     Matrix::Matrix(const int row, const int col,  const double number)
     {
         value.resize(row);
-        for (int i = 0; i < row; i++)
+        value[0].resize(col); 
+        for (auto it = value[0].begin(); it != value[0].end(); it++)
+            *it = number;
+        for (int i = 1; i < row; i++)
         {
-            for (int j = 0; j < col; j++)
-            {
-                value[i].push_back(number);
-            }
+            value[i].resize(col);
+            memcpy(&value[i], &value[0], sizeof(double)*col);
         }
         this->_row = row;
         this->_col = col;
@@ -412,7 +413,8 @@ namespace MatrixOperation
 
     HRESULT Matrix::qr(Matrix& q, Matrix& r)
     {
-        
+        HRESULT hr = S_OK;
+        return hr;
     }
 
 
@@ -545,6 +547,8 @@ namespace MatrixOperation
             x = D_inverse*(B - L*x_last - U*x);
             n++; 
         }
+
+        return x;
     }
 
     Matrix operator-(const Matrix& A, const Matrix& B)
@@ -618,8 +622,7 @@ int main()
     Matrix result = vec1 * vec2;
     Matrix b = Matrix(3, 1, 1);
     std::cout << "b is " << b.toString() << std::endl; 
-    Matrix x = MatrixOperation::backwardSubstitution(vec1,b);
-    std::cout << x.toString() << std::endl;
+    std::cin.get(); 
     
     
 }
