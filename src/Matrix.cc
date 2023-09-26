@@ -143,6 +143,13 @@ namespace MatrixOperation
     }
 
     //basic operation
+    Matrix Matrix::operator()(const char all = ':', const unsigned int i)
+    {
+        Matrix x = Matrix(_row, 1, 0);
+        for (int j = 0; j < _col; j++)
+           x[i][0] = value[j][i]; 
+        return x;
+    }
 
     std::vector<double>& Matrix::operator[](int n)
     {
@@ -207,20 +214,21 @@ namespace MatrixOperation
         return true;
     }
 
-    const Matrix Matrix::operator|(Matrix& B)
+    Matrix Matrix::operator|(const Matrix& B) const
     {
+        Matrix result = *this; 
         if (_row != B.getRow())
             throw; 
         else
         {
             for (int i = 0; i < _row; i++)
             {
-                value[i].reserve(_col+B.getCol());
+                result[i].reserve(_col+B.getCol());
                 for (int j = 0; j < B.getCol(); j++)
-                    value[i].push_back(B[i][j]); 
+                    result[i].push_back(B[i][j]); 
             }
         }
-        return *this; 
+        return result; 
     }
 
     Matrix Matrix::dot(Matrix A, Matrix B)
@@ -360,69 +368,6 @@ namespace MatrixOperation
         return hr;
     }
 
-    HRESULT Matrix::gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled)
-    {
-        HRESULT hr = S_OK;
-        //pivot suche
-        int n = A.getRow();
-        int q = B.getCol();
-        double p; //pivotzeilen
-        double piv;
-        double l;
-        
-        for (int s = 0; s < n-1; s++)
-        {
-            if (pivot_enabled)
-            {
-                //pivot suche
-                p = s;
-                piv = fabs(A[s][s]);
-                for (int i = s+1; i < n; i++)
-                {
-                    if (fabs(A[i][s]) > piv)
-                    {
-                        p = i;
-                        piv = fabs(A[i][s]);
-                    }
-                }
-                if (piv <= Matrix::esp)
-                    return 0;
-                //Zeilenvertauschung
-                if (p != s)
-                {
-                    for (int j = s; j < n; j++)
-                    {
-                        l = A[s][j];
-                        A[s][j] = A[p][j];
-                        A[p][j] = l;
-                    }
-                    for (int k = 0; k < q; k++)
-                    {
-                        l = B[s][k];
-                        B[s][k] = B[p][k];
-                        B[p][k] = l;
-                    }
-                }
-            }
-            //Elimination
-            for (int i = s+1; i < n; i++)
-            {
-                l = A[i][s]/A[s][s];
-                A[i][s] = 0;
-                for (int j = s+1; j < n; j++)
-                    A[i][j] = A[i][j] - l*A[s][j];
-                for (int k = 0; k < q; k++)
-                    B[i][k] = B[i][k] - l*B[s][k];
-            }
-
-        }
-
-        if (fabs(A[n-1][n-1]) <= Matrix::esp)
-            hr = S_FALSE;
-
-        return hr;
-    }
-
     HRESULT Matrix::qr(Matrix& q, Matrix& r)
     {
         HRESULT hr = S_OK;
@@ -481,24 +426,25 @@ namespace MatrixOperation
     }
 
 
-    const double Matrix::det()
+    const double Matrix::det() const
     {
         int n = _col; 
         double p; //pivotzeilen
         double piv;
         double l;
+        Matrix A = *this; 
         
         for (int s = 0; s < n-1; s++)
         {
             //pivot suche
             p = s;
-            piv = fabs(value[s][s]);
+            piv = fabs(A[s][s]);
             for (int i = s+1; i < n; i++)
             {
-                if (fabs(value[i][s]) > piv)
+                if (fabs(A[i][s]) > piv)
                 {
                     p = i;
-                    piv = fabs(value[i][s]);
+                    piv = fabs(A[i][s]);
                 }
             }
             if (piv <= Matrix::esp)
@@ -508,26 +454,26 @@ namespace MatrixOperation
             {
                 for (int j = s; j < n; j++)
                 {
-                    l = value[s][j];
-                    value[s][j] = value[p][j];
-                    value[p][j] = l;
+                    l = A[s][j];
+                    A[s][j] = A[p][j];
+                    A[p][j] = l;
                 }
             }
             
             //Elimination
             for (int i = s+1; i < n; i++)
             {
-                l = value[i][s]/value[s][s];
-                value[i][s] = 0;
+                l = A[i][s]/A[s][s];
+                A[i][s] = 0;
                 for (int j = s+1; j < n; j++)
-                    value[i][j] = value[i][j] - l*value[s][j];
+                    A[i][j] = A[i][j] - l*A[s][j];
             }
 
         }
 
         double d = 1;
         for (int i = 0; i < n; i++)
-            d *= value[i][i]; 
+            d *= A[i][i]; 
         return d;
     }
 
@@ -666,6 +612,13 @@ namespace MatrixOperation
         else
             throw;
     }
+
+    HRESULT gaussElimination(const Matrix& A, const Matrix& B, Matrix& X)
+    {
+        Matrix G = A | B; 
+        
+
+    }
 };
 
     
@@ -686,8 +639,7 @@ int main()
     A.qr(q, r); 
     std::cout << "q is " << q.toString() << std::endl; 
     std::cout << "r is " << r.toString() << std::endl; 
-    std::cout << "A is " << (q*A).toString() << std::endl; 
-    
-    
+    std::cout << "A is " << (q*r).toString() << std::endl; 
+
 }
 #endif

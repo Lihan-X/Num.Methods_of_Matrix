@@ -37,28 +37,27 @@ namespace MatrixOperation
         static constexpr double esp =1.11e-16;
         double getMaximumNorm(); 
         double getEuklischNorm(); 
-
-
-        //basic operation
+        //index
+        Matrix operator()(const char all = ':', const unsigned int i); 
         std::vector<double>& operator[](int n);
         const std::vector<double>& operator[](int n) const; 
         double& operator()(const unsigned int row, const unsigned int col);
+        //basic operation
         Matrix transpose();
         Matrix operator*(Matrix B); 
         Matrix operator*(const double& alpha);
 
         bool operator==(const Matrix& B) const;
-        const Matrix operator|(Matrix& B); 
+        Matrix operator|(const Matrix& B) const; 
         Matrix dot(Matrix A, Matrix B); 
         Matrix elementOperation(double (*func) (double ele)); 
         
 
         //linear symmetric 
         HRESULT lu(Matrix& L, Matrix& R, Matrix& z) const;
-        HRESULT choleskyDecomp(Matrix& L); 
-        HRESULT gaussElimination(Matrix& A, Matrix& B, bool pivot_enabled);
+        HRESULT choleskyDecomp(Matrix& L);
         HRESULT qr(Matrix& q, Matrix& r); 
-        const double det();
+        const double det() const;
         
 
 
@@ -69,13 +68,15 @@ namespace MatrixOperation
     };
 
 
-    
+    // linear algebra
     Matrix forwardSubstitution(const Matrix& L, const Matrix& b); 
-    Matrix backwardSubstitution(const Matrix& R, const Matrix& b);
+    Matrix backwardSubstitution(const Matrix& R, const Matrix& b); 
     Matrix LDUIteration(const Matrix& A, const Matrix& B);  
     Matrix operator*(const double& alpha, Matrix A);
     Matrix operator-(const Matrix& A, const Matrix& B); 
     Matrix operator+(const Matrix& A, const Matrix& B);
-    Matrix operator+=(Matrix& A, const Matrix& B);
+    Matrix operator+=(Matrix& A, const Matrix& B); 
+
+    HRESULT gaussElimination(const Matrix& A, const Matrix& B, Matrix& X); 
 };
 
