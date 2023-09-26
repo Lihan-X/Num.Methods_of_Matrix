@@ -191,7 +191,7 @@ namespace MatrixOperation
         return result;
     }
 
-    bool Matrix::operator==(Matrix& B)
+    bool Matrix::operator==(const Matrix& B) const
     {
         for (int i = 0; i < getRow(); i++)
         {
@@ -566,6 +566,24 @@ namespace MatrixOperation
     }
 
     Matrix operator+(const Matrix& A, const Matrix& B)
+    {
+        Matrix result = Matrix(A);
+        if ((A.getCol()==B.getCol()) && (A.getRow() == B.getRow()))
+        {
+            for (auto i = 0; i < A.getRow(); i++)
+            {
+                for (auto j = 0; j < A.getCol(); j++)
+                {
+                    result[i][j]=A[i][j]+B[i][j];
+                }
+            }
+            return result;
+        }
+        else
+            throw;
+    }
+
+    Matrix operator+=(const Matrix& A, const Matrix& B)
     {
         Matrix result = Matrix(A);
         if ((A.getCol()==B.getCol()) && (A.getRow() == B.getRow()))

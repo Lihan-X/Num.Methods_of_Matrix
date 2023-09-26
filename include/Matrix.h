@@ -45,7 +45,7 @@ namespace MatrixOperation
         Matrix operator*(Matrix B); 
         Matrix operator*(const double& alpha);
 
-        bool operator==(Matrix& B);
+        bool operator==(const Matrix& B) const;
         const Matrix operator|(Matrix& B); 
         Matrix dot(Matrix A, Matrix B); 
         Matrix elementOperation(double (*func) (double ele)); 
@@ -75,5 +75,6 @@ namespace MatrixOperation
     Matrix operator*(const double& alpha, Matrix A);
     Matrix operator-(const Matrix& A, const Matrix& B); 
     Matrix operator+(const Matrix& A, const Matrix& B);
+    Matrix operator+=(const Matrix& A, const Matrix& B);
 };
 
