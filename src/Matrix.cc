@@ -30,17 +30,17 @@ namespace MatrixOperation
         value[0].resize(col); 
         for (auto it = value[0].begin(); it != value[0].end(); it++)
             *it = number;
-        for (int i = 1; i < row; i++)
+        for (int i = 0; i < row; i++)
         {
             value[i].resize(col);
-            memcpy(&value[i], &value[0], sizeof(double)*col);
+            std::memcpy(&(value[i][0]), &(value[0][0]), sizeof(double)*col);
         }
         this->_row = row;
         this->_col = col;
 
     }
 
-    Matrix Matrix::identity(const int n)
+    Matrix Matrix::identity(const int n) const
     {
         Matrix I = Matrix(n,n,0);
         for (int i = 0; i < n; i++)
@@ -256,6 +256,76 @@ namespace MatrixOperation
         return result; 
     }
 
+    HRESULT Matrix::lu(Matrix& L, Matrix& U, Matrix& z) const
+    {
+        HRESULT hr = S_OK;
+        U = *this;
+        L = identity(_row); 
+        z = Matrix(1, _col, 1); 
+        if (_col != _row)
+            return S_FALSE; 
+        for (unsigned int i = 0; i < _col; i++)
+        {
+            z[0][i] = i;
+        }
+        for (unsigned int s = 0; s < _col-1; s++)
+        {
+            double p = s; 
+            double piv = fabs(U[s][s]); 
+            for (unsigned int i = s+1; i < _col; i++)
+            {
+                if (fabs(U[i][s]) <= piv)
+                    continue;
+                else
+                {
+                    p = i; 
+                    piv = fabs(U[i][s]);
+                }
+            }
+
+            if (piv < esp)
+                return S_FALSE;
+            if (p != s)
+            {
+                for (int j = 0; j < _col; j++)
+                {
+                    double l = U[s][j]; 
+                    U[s][j] = U[p][j]; 
+                    U[p][j] = l;
+                }
+
+                int j = z[0][s]; 
+                z[0][s] = z[0][p]; 
+                z[0][p] = j;
+            }
+
+            for (int i = s+1; i < _col; i++)
+            {
+                double l = U[i][s]/U[s][s]; 
+                U[i][s] = l; 
+                for (int j = s+1; j < _col; j++)
+                {
+                    U[i][j] = U[i][j] - l*U[s][j]; 
+                }
+            }            
+
+        }
+        for (int i = 0; i < _col; i++)
+            {
+                for (int j = 0; j < _col; j++)
+                {
+                    if (i > j)
+                    {
+                        L[i][j] = U[i][j];
+                        U[i][j] = 0; 
+                    }
+                }
+            }
+        if (U[_col-1][_col-1] < esp)
+            hr = S_FALSE;
+        return hr;
+    }
+
 
     //linear symmetric 
     HRESULT Matrix::choleskyDecomp(Matrix& L)
@@ -353,67 +423,60 @@ namespace MatrixOperation
         return hr;
     }
 
-    HRESULT Matrix::gaussElimination_with_LR_decomp(Matrix& A, Matrix& z)
-    {
-        int n = A.getRow();
-        z = Matrix(n,1,0);
-        for (int i = 0; i < n; i++)
-            z[i][0] = i;
-        double p; //pivotzeilen
-        double piv;
-        double l;
-        
-        for (int s = 0; s < n-1; s++)
-        {
-            //pivot suche
-            p = s;
-            piv = fabs(A[s][s]);
-            for (int i = s+1; i < n; i++)
-            {
-                if (fabs(A[i][s]) > piv)
-                {
-                    p = i;
-                    piv = fabs(A[i][s]);
-                }
-            }
-            if (piv <= Matrix::esp)
-                return 0;
-            //Zeilenvertauschung
-            if (p != s)
-            {
-                int j;
-                for (j = 0; j < n; j++)
-                {
-                    l = A[s][j];
-                    A[s][j] = A[p][j];
-                    A[p][j] = l;
-                }
-                    j = z[s][0];
-                    z[s][0] = z[p][0]; 
-                    z[p][0] = j;    
-            }
-            //Elimination
-            for (int i = s+1; i < n; i++)
-            {
-                l = A[i][s]/A[s][s];
-                A[i][s] = l;
-                for (int j = s+1; j < n; j++)
-                    A[i][j] = A[i][j] - l*A[s][j];
-            }
-
-        }
-
-        if (fabs(A[n-1][n-1]) <= Matrix::esp)
-            return false;
-
-        return true;
-
-    }
-
-
     HRESULT Matrix::qr(Matrix& q, Matrix& r)
     {
         HRESULT hr = S_OK;
+        const int n = _col; 
+        double alpha, beta; 
+        r = *this; 
+        Matrix B = identity(n); 
+        Matrix d = Matrix(1, n, 0); 
+        for (int s = 0; s < n; s++)
+        {
+            double mu = 0;
+            for (int i = s; i < n; i++)
+                mu += r[i][s]*r[i][s]; 
+            if (mu < esp*esp)
+                return S_FALSE; 
+            if (r[s][s] < 0)
+                mu = sqrt(mu); 
+            else
+                mu = -sqrt(mu);
+            d[0][s] = mu; 
+            r[s][s] = r[s][s] - mu; 
+            alpha = -mu* r[s][s]; 
+            for (int j = s+1; j < n; j++)
+            {
+                double sum = 0;
+                for(int i = s; i < n; i++)
+                    sum += r[i][s]*r[i][j];
+                beta = sum/alpha;
+                for (int i = s;i < n; i++)
+                    r[i][j] = r[i][j] - beta*r[i][s];
+            }
+
+            for (int k = 0; k < n; k++)
+            {
+                double sum = 0;
+                for(int i = s; i < n; i++)
+                    sum += r[i][s]*B[i][k]; 
+                beta = sum/alpha; 
+
+                for (int i = s; i < n; i++)
+                    B[i][k] = B[i][k] - beta*r[i][s];
+            }
+        }
+        for (int i = 0; i < n; i++)
+        {
+            r[i][i] = d[0][i]; 
+            for (int j = 0; j < n; j++)
+            {
+                if(i > j)
+                r[i][j] = 0; 
+            }
+            
+        }
+        q = B.transpose(); 
         return hr;
     }
 
@@ -587,19 +650,18 @@ namespace MatrixOperation
             throw;
     }
 
-    Matrix operator+=(const Matrix& A, const Matrix& B)
+    Matrix operator+=(Matrix& A, const Matrix& B)
     {
-        Matrix result = Matrix(A);
         if ((A.getCol()==B.getCol()) && (A.getRow() == B.getRow()))
         {
             for (auto i = 0; i < A.getRow(); i++)
             {
                 for (auto j = 0; j < A.getCol(); j++)
                 {
-                    result[i][j]=A[i][j]+B[i][j];
+                    A[i][j]=A[i][j]+B[i][j];
                 }
             }
-            return result;
+            return A;
         }
         else
             throw;
@@ -618,11 +680,13 @@ int main()
 {
     Matrix vec1 = Matrix({{1,0,0},{0,2,0},{0,0,3}});
     Matrix vec2 = Matrix({{0,3,1},{0,4,-2},{2,1,2}});
-    Matrix A = Matrix({{4,-1,1},{9,-8,9},{11,-11,12}});
+    Matrix A = Matrix({{1, 2, 2},{3,5,1},{2,6,5}});
     Matrix result = vec1 * vec2;
-    Matrix b = Matrix(3, 1, 1);
-    std::cout << "b is " << b.toString() << std::endl; 
-    std::cin.get(); 
+    Matrix q, r;
+    A.qr(q, r); 
+    std::cout << "q is " << q.toString() << std::endl; 
+    std::cout << "r is " << r.toString() << std::endl; 
+    std::cout << "A is " << (q*A).toString() << std::endl; 
     
     
 }
