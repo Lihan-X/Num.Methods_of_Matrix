@@ -54,7 +54,7 @@ namespace MatrixOperation
         
 
         //linear symmetric 
-        HRESULT lu(Matrix& L, Matrix& R, Matrix& z) const;
+        HRESULT lu(Matrix& L, Matrix& R, Matrix& z) const; // Gauss elimination method
         HRESULT choleskyDecomp(Matrix& L);
         HRESULT qr(Matrix& q, Matrix& r); 
         const double det() const;
@@ -77,6 +77,6 @@ namespace MatrixOperation
     Matrix operator+(const Matrix& A, const Matrix& B);
     Matrix operator+=(Matrix& A, const Matrix& B); 
 
-    HRESULT gaussElimination(const Matrix& A, const Matrix& B, Matrix& X); 
+    HRESULT gaussElimination(Matrix A, Matrix B, Matrix& X); 
 };
 

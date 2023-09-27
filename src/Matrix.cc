@@ -613,9 +613,61 @@ namespace MatrixOperation
             throw;
     }
 
-    HRESULT gaussElimination(const Matrix& A, const Matrix& B, Matrix& X)
+    HRESULT gaussElimination(Matrix A, Matrix B, Matrix& X)
     {
-        Matrix G = A | B; 
+        int n = A.getCol(); 
+        int q = B.getCol(); 
+        double p, piv, l;
+        for (int s = 0;s < n-1; s++)
+        {
+            p = s;
+            piv = fabs(A[s][s]); 
+            for (int i = s+1; i < n; i++)
+            {
+                if (fabs(A[s][s]) <= piv)
+                    continue;
+                else
+                {
+                    p = i; 
+                    piv = A[i][s]; 
+                }
+            }
+            if (piv <= Matrix::esp)
+                return S_FALSE;
+            if (p != s)
+            {
+                for (int j = s; j < n; j++)
+                {
+                    l = A[s][j]; 
+                    A[s][j] = A[p][j]; 
+                    A[p][j] = l; 
+                }
+                for (int k = 0; k < q; k++)
+                {
+                    l = B[s][k]; 
+                    B[s][k] = B[p][k]; 
+                    B[p][k] = l; 
+                }
+            }
+
+            for (int i = s+1; i < n; i++)
+            {
+                l = A[i][s]/A[s][s]; 
+                A[i][s] = 0;
+                for (int j = s+1; j < n; j++)
+                {
+                    A[i][j] = A[i][j]-l*A[s][j];
+                }
+                for (int k = 0; k < q; k++)
+                    B[i][k] = B[i][k] - l*B[s][k]; 
+            } 
+            
+        }
+
+        if (fabs(A[n][n]) <= Matrix::esp)
+            return S_FALSE; 
+        X = backwardSubstitution(A, B); 
+        return S_OK;
         
 
     }
