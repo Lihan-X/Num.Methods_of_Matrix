@@ -38,7 +38,8 @@ namespace MatrixOperation
         double getMaximumNorm(); 
         double getEuklischNorm(); 
         //index
-        Matrix operator()(const char all = ':', const unsigned int i); 
+
+        
         std::vector<double>& operator[](int n);
         const std::vector<double>& operator[](int n) const; 
         double& operator()(const unsigned int row, const unsigned int col);
@@ -75,8 +76,11 @@ namespace MatrixOperation
     Matrix operator*(const double& alpha, Matrix A);
     Matrix operator-(const Matrix& A, const Matrix& B); 
     Matrix operator+(const Matrix& A, const Matrix& B);
-    Matrix operator+=(Matrix& A, const Matrix& B); 
+    Matrix operator+=(Matrix& A, const Matrix& B);
 
+    HRESULT qr(Matrix A, Matrix B, Matrix& X); 
     HRESULT gaussElimination(Matrix A, Matrix B, Matrix& X); 
+
+    Matrix ode45(const double& t_start, const double& t_end, const Matrix& x0); 
 };
 

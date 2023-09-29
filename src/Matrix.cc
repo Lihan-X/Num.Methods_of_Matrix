@@ -143,13 +143,7 @@ namespace MatrixOperation
     }
 
     //basic operation
-    Matrix Matrix::operator()(const char all = ':', const unsigned int i)
-    {
-        Matrix x = Matrix(_row, 1, 0);
-        for (int j = 0; j < _col; j++)
-           x[i][0] = value[j][i]; 
-        return x;
-    }
+
 
     std::vector<double>& Matrix::operator[](int n)
     {
@@ -371,7 +365,8 @@ namespace MatrixOperation
     HRESULT Matrix::qr(Matrix& q, Matrix& r)
     {
         HRESULT hr = S_OK;
-        const int n = _col; 
+        const int n = _row; 
+        const int m = _col;
         double alpha, beta; 
         r = *this; 
         Matrix B = identity(n); 
@@ -424,6 +419,7 @@ namespace MatrixOperation
         q = B.transpose(); 
         return hr;
     }
+
 
 
     const double Matrix::det() const
@@ -613,6 +609,62 @@ namespace MatrixOperation
             throw;
     }
 
+    HRESULT qr(Matrix A, Matrix B, Matrix& X)
+    {
+        const int m = A.getRow(); 
+        const int n = A.getCol();
+        const int q = B.getCol();
+        double alpha, beta, mu; 
+        Matrix d = Matrix(1, n, 0); 
+        for (int s = 0; s < n; s++)
+        {
+            // v = a - mu*e_1
+            double mu = 0;
+            for (int i = s; i < m; i++)
+                mu += A[i][s]*A[i][s]; 
+            if (mu < Matrix::esp*Matrix::esp)
+                return S_FALSE; 
+            if (A[s][s] < 0)
+                mu = sqrt(mu); 
+            else
+                mu = -sqrt(mu);
+            d[0][s] = mu; 
+            A[s][s] = A[s][s] - mu; 
+            // H = E - 1/alpha*v*v_transpose
+            alpha = -mu* A[s][s]; // alpha = -mu*v1 
+            for (int j = s+1; j < n; j++)
+            {
+                double sum = 0;
+                for(int i = s; i < m; i++)
+                    sum += A[i][s]*A[i][j];
+                beta = sum/alpha;
+                for (int i = s;i < m; i++)
+                    A[i][j] = A[i][j] - beta*A[i][s];
+            }
+
+            for (int k = 0; k < q; k++)
+            {
+                double sum = 0;
+                for(int i = s; i < m; i++)
+                    sum += A[i][s]*B[i][k]; 
+                beta = sum/alpha; 
+
+                for (int i = s; i < m; i++)
+                    B[i][k] = B[i][k] - beta*A[i][s];
+            }
+        }
+
+        Matrix R = Matrix(n, n, 0); 
+        for (int i = 0; i < m; i++)
+        {
+            R[i][i] = d[0][i]; 
+            for (int j = i+1; j < n; j++)
+                R[i][j] = A[i][j];         
+        }
+        X = backwardSubstitution(R, B);
+        return S_OK; 
+    }
+
     HRESULT gaussElimination(Matrix A, Matrix B, Matrix& X)
     {
         int n = A.getCol(); 
@@ -671,6 +723,11 @@ namespace MatrixOperation
         
 
     }
+
+    Matrix ode45(const double& t_start, const double& t_end, const Matrix& x0)
+    {
+        
+    }
 };
 
     
@@ -687,11 +744,14 @@ int main()
     Matrix vec2 = Matrix({{0,3,1},{0,4,-2},{2,1,2}});
     Matrix A = Matrix({{1, 2, 2},{3,5,1},{2,6,5}});
     Matrix result = vec1 * vec2;
+    Matrix a = Matrix({{1, 2, 3}}); 
+    Matrix b = a.transpose(); 
     Matrix q, r;
     A.qr(q, r); 
-    std::cout << "q is " << q.toString() << std::endl; 
-    std::cout << "r is " << r.toString() << std::endl; 
-    std::cout << "A is " << (q*r).toString() << std::endl; 
+    qr(vec1, b, a); 
+
+    std::cout << "X is " << a.toString() << std::endl; 
+
 
 }
 #endif
